@@ -22,7 +22,6 @@
 
         public: 
             Instancia();
-            ~Instancia();
             bool lerInstancia(string caminho_instancia);
             void exibir();
     };

@@ -6,12 +6,11 @@
      
 
 Instancia::Instancia(){
-
-}
-
-
-Instancia::~Instancia(){
-    
+    clientes = 0;
+    veiculos = 0;
+    capacidade = 0;
+    minimo_entregas = 0;
+    custo_veiculo = 0;
 }
 
 
@@ -51,10 +50,37 @@ bool Instancia::lerInstancia (string caminho){
         for(int j = 0; j < matriz_distancias.size(); j++){
             arquivo_inst >> aux;
             matriz_distancias[i].push_back(aux);
-            cout << aux << endl;
-            getchar();
         }
     }
 
     return true;
+}
+
+void Instancia::exibir(){
+
+    std::cout << "Clientes: " << clientes << endl
+              << "Veículos " << veiculos << endl
+              << "Capacidade: " << capacidade << endl
+              << "Mínimo de entregas: " << minimo_entregas << endl
+              << "Custo dos veículos: " << custo_veiculo << endl << endl;
+
+    for(int i = 0; i < clientes; i++){
+
+        std::cout << "Demanda cliente " << i+1 << ": " << demandas[i] << endl;
+    }
+    
+    cout << endl;
+    for(int i = 0; i < clientes; i++){
+
+        std::cout << "Custo tercerização do cliente " << i+1 << ": " << custo_terceirizacao[i] << endl;
+    }
+
+    std::cout << endl << "Matriz de custos: " << endl;
+
+    for(int i = 0; i < matriz_distancias.size(); i++){ 
+        for(int j = 0; j < matriz_distancias.size(); j++){
+            std::cout << matriz_distancias[i][j] << "  ";
+        }
+        std::cout << endl;
+    }
 }

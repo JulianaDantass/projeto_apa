@@ -21,7 +21,8 @@ int main(int argc, char** argv){
 
         string filename = string(argv[1]);
 
-        current_instance.lerInstancia(filename);          
+        current_instance.lerInstancia(filename);  
+        current_instance.exibir();            
         
     }
     
