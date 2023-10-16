@@ -11,10 +11,16 @@ Instancia::Instancia(){
     capacidade = 0;
     minimo_entregas = 0;
     custo_veiculo = 0;
+	heuristica = NULL;
+}
+
+Instancia::~Instancia(){
+
+	delete heuristica;
 }
 
 
-bool Instancia::lerInstancia (string caminho){
+Heuristica* Instancia::lerInstancia (string caminho){
     
     // Tentando abrir o arrquivo da instancia
     ifstream arquivo_inst;
@@ -22,7 +28,7 @@ bool Instancia::lerInstancia (string caminho){
 
     if(!arquivo_inst){
         std::cout << "Não foi possivel abrir o arquivo da instancia"; 
-        return false;
+        return NULL;
     }
 
     // Ler os primeiros 5 atributos da instancia
@@ -52,8 +58,10 @@ bool Instancia::lerInstancia (string caminho){
             matriz_distancias[i].push_back(aux);
         }
     }
+	
+	this->heuristica = new Heuristica(clientes, veiculos, capacidade, minimo_entregas, custo_veiculo, &demandas, &custo_terceirizacao, &matriz_distancias);
 
-    return true;
+    return this->heuristica;
 }
 
 void Instancia::exibir(){

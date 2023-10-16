@@ -3,7 +3,8 @@
 #include <iostream>
 #include <vector> 
 #include "instancia.h"
- 
+#include "heuristica.h"
+
 using namespace std;    
 
 
@@ -21,7 +22,8 @@ int main(int argc, char** argv){
 
         string filename = string(argv[1]);
 
-        current_instance.lerInstancia(filename);  
+        Heuristica* heuristica = current_instance.lerInstancia(filename);
+		heuristica->solve();
         current_instance.exibir();            
         
     }

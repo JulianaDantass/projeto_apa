@@ -4,7 +4,7 @@
     #include <iomanip>
     #include <fstream>
     #include <vector>
-
+	#include "heuristica.h"
     using namespace std;
 
     class Instancia{
@@ -19,10 +19,11 @@
                         custo_terceirizacao;
 
             vector<vector<int>> matriz_distancias;
-
+			Heuristica* heuristica;
         public: 
             Instancia();
-            bool lerInstancia(string caminho_instancia);
+			~Instancia();
+            Heuristica* lerInstancia(string caminho_instancia);
             void exibir();
     };
 
