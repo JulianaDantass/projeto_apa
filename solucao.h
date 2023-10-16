@@ -14,6 +14,8 @@ class Solucao{
 		void setObjetivo(int valor);
 		void setCapacidade(int valor);
 		int getCapacidade();
+		int getUltimoCliente();
+
 		vector<int>* getCaminho();
 
 	private:

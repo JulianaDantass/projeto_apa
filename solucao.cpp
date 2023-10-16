@@ -7,13 +7,20 @@ Solucao::Solucao(int veiculo, int capacidade){
 
 	this->veiculo = veiculo;
 	this->capacidade = capacidade;
+	this->funcao_objetivo = 0;
+
 }
 
 
 void Solucao::insereCaminhoFim(int cliente){
-
+	
 	this->caminho.push_back(cliente);
 
+}
+
+int Solucao::getUltimoCliente(){
+
+	return this->caminho.back();
 }
 
 vector < int> * Solucao::getCaminho(){

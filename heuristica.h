@@ -11,7 +11,9 @@ class Heuristica{
 				vector < int> *demanda, vector <int> * custo_terceirizacao, vector <vector<int>>* matriz_distancia);
 		~Heuristica();
 		void solve();
-		
+		void insercaoMaisBarata();	
+		void solucaoInicial(int indiceSolucao);
+		int calculaObjetivo(int cliente_anterior, int cliente_atual, int objetivo);
 
 	private:
 		int clientes;
