@@ -1,7 +1,7 @@
 #ifndef HEURISTICA_H
 #define HEURISTICA_H
 
-#include "solucao.h"
+#include "veiculo.h"
 #include <vector>
 using namespace std;
 
@@ -24,7 +24,7 @@ class Heuristica{
 		vector <int> * demanda;
 		vector <int> * custo_terceirizacao;
 		vector <vector<int>>* matriz_distancia;
-		vector < Solucao* > *solucoes;
+		vector < Veiculo* > *veiculos;
 		vector < int > clientesOrdenados;
 };
 

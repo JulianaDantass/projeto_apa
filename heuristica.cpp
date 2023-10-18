@@ -20,7 +20,7 @@ Heuristica::Heuristica(int clientes, int qVeiculos, int capacidade, int minimo_e
 		clientesOrdenados.push_back(i);
 	}
 
-	solucoes = new vector < Solucao * >(qVeiculos);
+	veiculos = new vector < Veiculo * >(qVeiculos);
 
 	
 }
@@ -37,11 +37,12 @@ int Heuristica::calculaObjetivo(int cliente_anterior, int cliente_atual, int obj
 
 
 
-void Heuristica::solucaoInicial(int indice_solucao){
+void Heuristica::solucaoInicial(int indice_veiculo){
 
-	solucoes->at(indice_solucao) = new Solucao(indice_solucao, capacidade);
-	Solucao* s = solucoes->at(indice_solucao);
+	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, capacidade, clientes);
+	Veiculo* s = veiculos->at(indice_veiculo);
 	s->insereCaminhoFim(0);
+
 	int inseriu = 0;
 	int funcaoObjetivo = 0;
 	
@@ -57,6 +58,7 @@ void Heuristica::solucaoInicial(int indice_solucao){
 			int novaCapacidade = capacidade - demanda_cliente;
 			funcaoObjetivo = calculaObjetivo(s->getUltimoCliente(), cliente_indice, s->getObjetivo());
 			
+			s->setCliente(cliente_indice, s->getUltimoCliente());
 			s->insereCaminhoFim(cliente_indice);
 			s->setObjetivo(funcaoObjetivo);
 			s->setCapacidade(novaCapacidade);
@@ -71,6 +73,7 @@ void Heuristica::solucaoInicial(int indice_solucao){
 	}
 	
 	funcaoObjetivo = calculaObjetivo(s->getUltimoCliente(), 0, s->getObjetivo());
+	s->setCliente(0, s->getUltimoCliente());
 	s->insereCaminhoFim(0);
 	s->setObjetivo(funcaoObjetivo);
 	cout << "Capacidade do veiculo após solucao inicial: " << s->getCapacidade() << endl;
@@ -86,16 +89,68 @@ void Heuristica::solucaoInicial(int indice_solucao){
 
 void Heuristica::insercaoMaisBarata(){
 	
-	solucaoInicial(0);
-	vector < int >*caminhoInicial = solucoes->at(0)->getCaminho();
+	for(int i = 0; i < qVeiculos; i++){
+		
+		solucaoInicial(i); //Constroi a solução inicial
+		
 
-	for(int i = 0; i < caminhoInicial->size(); i++){
+		// For responsável para verificar qual o menor custo de insercao
+		int quantiaClientes = clientesOrdenados.size();
+		int capacidadeVeiculo = veiculos->at(i)->getCapacidade();
+		Veiculo* s = veiculos->at(i);
+		
+		s->printaCaminhoTotal(0);
+		getchar();
+		if (capacidadeVeiculo <=0)
+			continue;
+		
+		cout << "Quantia clientes: " << quantiaClientes << endl;
 
-		cout << caminhoInicial->at(i) << " ";
+		for(int v = 1; v < quantiaClientes; v++){
+			int cliente = clientesOrdenados[v];
+			
+			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
+
+			
+			int melhorCliente_a = 0;
+			int melhorCliente_b = 0;
+			int custo = 0;
+			int melhorCusto = 0;
+
+			int clienteA = 0;
+			while(1){
+				int clienteB = (*caminhoTotal)[clienteA];
+				cout << "Teste de insercao do cliente " << cliente << " Entre os clientes " << clienteA << " " << clienteB << endl;
+				custo = (*matriz_distancia)[clienteA][cliente] + (*matriz_distancia)[clienteB][cliente] - (*matriz_distancia)[clienteA][clienteB];
+				cout << "Custo de: " << custo << endl;
+				if (custo < 0 and custo < melhorCusto){
+
+					melhorCusto = custo;
+					melhorCliente_a = clienteA;
+					melhorCliente_b = clienteB;
+				}
+				if (clienteB == 0){
+					break;
+				}
+				clienteA = clienteB;
+				getchar();
+			}
+
+			if(melhorCusto != 0){
+				//SetCliente(proximoCliente, clienteAnterior)
+				s->setCliente(cliente, melhorCliente_a);
+				s->setCliente(melhorCliente_b, cliente);
+			
+				int funcaoObjetivo = s->getObjetivo() + melhorCusto; // O melhor custo vai ser negativo
+				s->setObjetivo(funcaoObjetivo);
+			}
+		}
+		s->printaCaminhoTotal(0);
+
+		getchar();
+
 	}
-	cout << endl;
-	cout << "Objetivo Inicial: " << solucoes->at(0)->getObjetivo() << endl;
-	getchar();
+
 
 
 }
