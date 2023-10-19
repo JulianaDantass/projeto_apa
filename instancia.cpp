@@ -2,55 +2,51 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <climits>
+#include <vector>
 
      
-
 Instancia::Instancia(){
-    clientes = 0;
-    veiculos = 0;
+    q_clientes = 0;
+    q_veiculos = 0;
     capacidade = 0;
     minimo_entregas = 0;
     custo_veiculo = 0;
-	heuristica = NULL;
-}
-
-Instancia::~Instancia(){
-
-	delete heuristica;
 }
 
 
-Heuristica* Instancia::lerInstancia (string caminho){
+void Instancia::lerInstancia (string caminho){
     
     // Tentando abrir o arrquivo da instancia
     ifstream arquivo_inst;
     arquivo_inst.open(caminho.c_str());
 
     if(!arquivo_inst){
-        std::cout << "Não foi possivel abrir o arquivo da instancia"; 
-        return NULL;
+        cout << "Não foi possivel abrir o arquivo da instancia"; 
     }
 
     // Ler os primeiros 5 atributos da instancia
-    arquivo_inst >> clientes
-                 >> veiculos
+    arquivo_inst >> q_clientes
+                 >> q_veiculos
                  >> capacidade
                  >> minimo_entregas
                  >> custo_veiculo;
     
     int aux;
-
-    for(int i = 0; i < clientes; i++){        //lendo o vetor de demanda
+    
+    demandas.push_back(INT_MAX);      //descartando o indice 0 do vetor para que a indexação fique direta                   
+    for(int i = 0; i < q_clientes; i++){        //lendo o vetor de demanda de cada cliente
         arquivo_inst >> aux; 
         demandas.push_back(aux);
     }
 
-    for(int i = 0; i < clientes; i++){        //lendo o vetor de custos da terceirizacao
+    custo_terceirizacao.push_back(INT_MAX);      //descartando o indice 0 do vetor para que a indexação fique direta    
+    for(int i = 0; i < q_clientes; i++){        //lendo o vetor de custos da terceirizacao de cada cliente
         arquivo_inst >> aux; 
         custo_terceirizacao.push_back(aux);
     }
 
-    matriz_distancias.resize(clientes+1);     //definindo o tamanho da matriz de distancias com a quantidade de clientes + deposito
+    matriz_distancias.resize(q_clientes+1);     //definindo o tamanho da matriz de distancias com a quantidade de clientes + deposito
 
     for(int i = 0; i < matriz_distancias.size(); i++){  //lendo os valores da matriz de distancia
         for(int j = 0; j < matriz_distancias.size(); j++){
@@ -59,36 +55,33 @@ Heuristica* Instancia::lerInstancia (string caminho){
         }
     }
 	
-	this->heuristica = new Heuristica(clientes, veiculos, capacidade, minimo_entregas, custo_veiculo, &demandas, &custo_terceirizacao, &matriz_distancias);
-
-    return this->heuristica;
 }
 
 void Instancia::exibir(){
 
-    std::cout << "Clientes: " << clientes << endl
-              << "Veículos " << veiculos << endl
+    cout << "Clientes: " << q_clientes << endl
+              << "Veículos " << q_veiculos << endl
               << "Capacidade: " << capacidade << endl
               << "Mínimo de entregas: " << minimo_entregas << endl
               << "Custo dos veículos: " << custo_veiculo << endl << endl;
 
-    for(int i = 0; i < clientes; i++){
+    for(int i = 0; i < q_clientes; i++){
 
-        std::cout << "Demanda cliente " << i+1 << ": " << demandas[i] << endl;
+        cout << "Demanda cliente " << i+1 << ": " << demandas[i] << endl;
     }
     
     cout << endl;
-    for(int i = 0; i < clientes; i++){
+    for(int i = 0; i < q_clientes; i++){
 
-        std::cout << "Custo tercerização do cliente " << i+1 << ": " << custo_terceirizacao[i] << endl;
+        cout << "Custo tercerização do cliente " << i+1 << ": " << custo_terceirizacao[i] << endl;
     }
 
-    std::cout << endl << "Matriz de custos: " << endl;
+    cout << endl << "Matriz de custos: " << endl;
 
     for(int i = 0; i < matriz_distancias.size(); i++){ 
         for(int j = 0; j < matriz_distancias.size(); j++){
-            std::cout << matriz_distancias[i][j] << "  ";
+            cout << matriz_distancias[i][j] << "  ";
         }
-        std::cout << endl;
+        cout << endl;
     }
 }

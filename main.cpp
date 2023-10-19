@@ -18,14 +18,16 @@ int main(int argc, char** argv){
 
     }else if(argc >= 2){
         
-        Instancia current_instance;
+        Instancia dados;
+        Heuristica heuristica;
 
         string filename = string(argv[1]);
 
-        Heuristica* heuristica = current_instance.lerInstancia(filename);
-		heuristica->solve();
-        current_instance.exibir();            
-        
+        dados.lerInstancia(filename);
+
+        //dados.exibir(); 
+		heuristica.solve(&dados);
+
     }
     
 

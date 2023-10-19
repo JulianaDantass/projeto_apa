@@ -1,31 +1,31 @@
 #ifndef INSTANCIA_H_INCLUDED
 #define INSTANCIA_H_INCLUDED
 
-    #include <iomanip>
-    #include <fstream>
-    #include <vector>
-	#include "heuristica.h"
-    using namespace std;
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <vector>
 
-    class Instancia{
-        public: 
-            int clientes,
-                veiculos,
-                capacidade,
-                minimo_entregas,
-                custo_veiculo;
+using namespace std;
 
-            vector<int> demandas, 
-                        custo_terceirizacao;
+class Instancia{
+    public: 
+        int q_clientes,
+            q_veiculos,
+            capacidade,
+            minimo_entregas,
+            custo_veiculo;
 
-            vector<vector<int>> matriz_distancias;
-			Heuristica* heuristica;
-        public: 
-            Instancia();
-			~Instancia();
-            Heuristica* lerInstancia(string caminho_instancia);
-            void exibir();
-    };
+        vector<int> demandas, 
+                    custo_terceirizacao;
+
+        vector<vector<int>> matriz_distancias;
+
+    public: 
+        Instancia();
+        void lerInstancia(string caminho_instancia);
+        void exibir();
+};
 
 
 #endif // INSTANCE_H_INCLUDED
