@@ -3,7 +3,8 @@
 #include "instancia.h"
 #include "veiculo.h"
 #include <vector>
-// using namespace std;
+
+using namespace std;
 
 class Heuristica{
 	public:
@@ -18,6 +19,7 @@ class Heuristica{
 
 	private:
 		vector < Veiculo* > *veiculos;
+		vector < int > clientesOrdenados;
 		Instancia *dados;
 };
 

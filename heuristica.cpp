@@ -8,7 +8,7 @@ Heuristica::Heuristica(){
 	
 }
 
-void alocarRecursos(){
+void Heuristica::alocarRecursos(){
 
 	dados = new Instancia();
 	
@@ -23,9 +23,9 @@ int Heuristica::calculaObjetivo(int cliente_anterior, int cliente_atual, int obj
 
 	cout << "Cliente anterior: " << cliente_anterior << endl;
 	cout << "cliente atual: " << cliente_atual << endl;
-	cout << "Custo da aresta: " << dados->matriz_distancia[cliente_anterior][cliente_atual] << endl;
+	cout << "Custo da aresta: " << dados->matriz_distancias[cliente_anterior][cliente_atual] << endl;
 
-	int funcaoObjetivo = objetivo + dados->matriz_distancia[cliente_anterior][cliente_atual];
+	int funcaoObjetivo = objetivo + dados->matriz_distancias[cliente_anterior][cliente_atual];
 	cout << "FuncaoObjetivo apos o calculo: " << funcaoObjetivo << endl;	
 	return funcaoObjetivo;
 }
@@ -56,7 +56,7 @@ void Heuristica::solucaoInicial(int indice_veiculo, vector < bool > &clientesQue
 			* A ordenacao eh feita em nlog(n)*/
 
 		std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),[&](const int a, const int b){
-				return dados->matriz_distancia[a][cliente_anterior] <= dados->matriz_distancia[b][cliente_anterior];
+				return dados->matriz_distancias[a][cliente_anterior] <= dados->matriz_distancias[b][cliente_anterior];
 			});
 		
 
@@ -71,7 +71,7 @@ void Heuristica::solucaoInicial(int indice_veiculo, vector < bool > &clientesQue
 		int cliente_indice = clientesOrdenados.back();
 
 
-		int demanda_cliente = this->demanda->at(cliente_indice - 1); // Damos -1 pois o vetor de demanda começa em zero
+		int demanda_cliente = dados->demandas[cliente_indice]; // Damos -1 pois o vetor de demanda começa em zero
 		int capacidade = s->getCapacidade();
 
 		if(demanda_cliente <= capacidade){
@@ -142,7 +142,7 @@ void Heuristica::insercaoMaisBarata(){
 				continue;
 
 			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
-			int demanda_cliente = this->demanda->at(cliente - 1);
+			int demanda_cliente = dados->demandas[cliente];
 			
 			cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
 			if(demanda_cliente > s->getCapacidade()){
@@ -160,10 +160,10 @@ void Heuristica::insercaoMaisBarata(){
 			while(1){
 				int clienteB = (*caminhoTotal)[clienteA];
 				cout << "Teste de insercao do cliente " << cliente << " Entre os clientes " << clienteA << " " << clienteB << endl;
-				cout << "Custo do rota " << clienteA << " e " << cliente << " :" << dados->matriz_distancia[clienteA][cliente] << endl;
-				cout << "Custo da rota " << clienteB << " e " << cliente << " :" << dados->matriz_distancia[clienteB][cliente] << endl;
-				cout << "Custo da antiga rota: " << dados->matriz_distancia[clienteA][clienteB] << endl;
-				custo = dados->matriz_distancia[clienteA][cliente] + dados->matriz_distancia[clienteB][cliente] - dados->matriz_distancia[clienteA][clienteB];
+				cout << "Custo do rota " << clienteA << " e " << cliente << " :" << dados->matriz_distancias[clienteA][cliente] << endl;
+				cout << "Custo da rota " << clienteB << " e " << cliente << " :" << dados->matriz_distancias[clienteB][cliente] << endl;
+				cout << "Custo da antiga rota: " << dados->matriz_distancias[clienteA][clienteB] << endl;
+				custo = dados->matriz_distancias[clienteA][cliente] + dados->matriz_distancias[clienteB][cliente] - dados->matriz_distancias[clienteA][clienteB];
 				cout << "Custo de insercao: " << custo << endl;
 
 				if (custo < melhorCusto){

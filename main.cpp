@@ -22,6 +22,7 @@ int main(int argc, char** argv){
         Heuristica heuristica;
 
         string filename = string(argv[1]);
+		dados.exibir();
 
         dados.lerInstancia(filename);
 
