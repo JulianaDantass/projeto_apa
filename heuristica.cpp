@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
+#define QTD_VIZINHANCAS 3
 
 Heuristica::Heuristica(int clientes, int qVeiculos, int capacidade, int minimo_entregas, int custo_veiculo, 
 				vector < int> *demanda, vector <int> * custo_terceirizacao, vector <vector<int>>* matriz_distancia){
@@ -173,10 +174,36 @@ void Heuristica::solve(){
 
 	cout << "here" << endl;	
 	insercaoMaisBarata();
-		
 	
-
 }
+
+// void Heuristica::VND(){
+
+// 	for(int i = 0; i < qtd_rotas; i++){
+
+// 		int contador = 0; 
+// 		double solucao_vizinhanca = solucao_original;
+// 		while(contador < QTD_VIZINHANCAS){
+
+// 			switch(contador){
+// 				case 0:
+// 					swap();
+// 				case 1: 
+// 					reinsertion();
+// 				case 2:
+// 					swap_entre_rotas();
+// 			}
+
+// 			if(solucao_vizinhanca < solucao_original){            //se a vizinhanca melhorar a solucao
+// 				solucao_original = solucao_vizinhanca;
+// 				contador = 0;
+
+// 			}else{
+// 				contador++;
+// 			}
+// 		}
+// 	}	
+// }
 
 Heuristica::~Heuristica(){
 	

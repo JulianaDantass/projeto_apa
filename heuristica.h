@@ -14,6 +14,7 @@ class Heuristica{
 		void insercaoMaisBarata();	
 		void solucaoInicial(int indiceSolucao);
 		int calculaObjetivo(int cliente_anterior, int cliente_atual, int objetivo);
+		void VND();
 
 	private:
 		int clientes;
