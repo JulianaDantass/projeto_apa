@@ -12,7 +12,7 @@ class Heuristica{
 		~Heuristica();
 		void solve();
 		void insercaoMaisBarata();	
-		void solucaoInicial(int indiceSolucao);
+		void solucaoInicial(int indiceSolucao, vector < bool >&clientesQueue);
 		int calculaObjetivo(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 

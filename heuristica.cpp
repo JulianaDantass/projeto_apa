@@ -38,7 +38,7 @@ int Heuristica::calculaObjetivo(int cliente_anterior, int cliente_atual, int obj
 
 
 
-void Heuristica::solucaoInicial(int indice_veiculo){
+void Heuristica::solucaoInicial(int indice_veiculo, vector < bool > &clientesQueue){
 
 	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, capacidade, clientes);
 	Veiculo* s = veiculos->at(indice_veiculo);
@@ -51,11 +51,16 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 	 * Porém a complexidade justa é O(2)	*/
 	int cliente_anterior = 0;
 
-	for(int j = 0; j < clientes; j++){
+	for(int j = 1; j < clientes + 1; j++){
 		
 		// Vamos pegar os mais distantes entre si
 		// Como o cliente anterior inicalmente eh o deposito
 		// pegamos o primeiro mais distante ao deposito e assim por diante
+		
+
+		/* Ordenacao dos clientes em ordem do maior para o menor em relacao a distancia do deposito	
+			* A ordenacao eh feita em nlog(n)*/
+
 		std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),[&](const int a, const int b){
 				return (*matriz_distancia)[a][cliente_anterior] <= (*matriz_distancia)[b][cliente_anterior];
 			});
@@ -70,6 +75,8 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 
 		int cliente_indice = clientesOrdenados.back();
+
+
 		int demanda_cliente = this->demanda->at(cliente_indice - 1); // Damos -1 pois o vetor de demanda começa em zero
 		int capacidade = s->getCapacidade();
 
@@ -108,31 +115,43 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 void Heuristica::insercaoMaisBarata(){
 	
-	for(int i = 0; i < qVeiculos; i++){
-		
-		solucaoInicial(i); //Constroi a solução inicial
-		
+	vector < bool > clientesQueue;
 
-		// For responsável para verificar qual o menor custo de insercao
+	for(int i = 0; i < clientesOrdenados.size(); i++){
+			clientesQueue.push_back(true);
+	}
+
+
+	for(int i = 0; i < qVeiculos; i++){
+			
+		
+		cout << "Solucao inicial para o veiculo: " << i << endl;
+		cout << "-----------------Gerando Solucao Inicial----------------------------------" << endl;
+		solucaoInicial(i, clientesQueue); //Constroi a solução inicial
+		cout << endl << "------------------------------------------------------------------" << endl;
+			
 		int quantiaClientes = clientesOrdenados.size();
-		int capacidadeVeiculo = veiculos->at(i)->getCapacidade();
 		Veiculo* s = veiculos->at(i);
 		
 		s->printaCaminhoTotal(0);
 		getchar();
-		if (capacidadeVeiculo <=0)
-			continue;
-		
 		cout << "Quantia clientes: " << quantiaClientes << endl;
 
 		for(int v = 0; v < quantiaClientes; v++){
 			int cliente = clientesOrdenados[v];
 			
+			// Se um cliente já foi inserido na rota passamos para outro cliente
+			if(!clientesQueue[v])
+				continue;
+			
+			if(s->getCapacidade() <= 0)
+				continue;
+
 			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
 			int demanda_cliente = this->demanda->at(cliente - 1);
 			
 			cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
-			if(demanda_cliente > capacidadeVeiculo){
+			if(demanda_cliente > s->getCapacidade()){
 
 				cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
 				continue;
@@ -141,7 +160,7 @@ void Heuristica::insercaoMaisBarata(){
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
 			int custo = 0;
-			int melhorCusto = 0;
+			int melhorCusto = 999999;
 
 			int clienteA = 0;
 			while(1){
@@ -151,8 +170,8 @@ void Heuristica::insercaoMaisBarata(){
 				cout << "Custo da rota " << clienteB << " e " << cliente << " :" << (*matriz_distancia)[clienteB][cliente] << endl;
 				cout << "Custo da antiga rota: " << (*matriz_distancia)[clienteA][clienteB] << endl;
 				custo = (*matriz_distancia)[clienteA][cliente] + (*matriz_distancia)[clienteB][cliente] - (*matriz_distancia)[clienteA][clienteB];
-				cout << "Custo de: " << custo << endl;
-				if (custo < 0 and custo < melhorCusto){
+				cout << "Custo de insercao: " << custo << endl;
+				if (custo < melhorCusto){
 
 					melhorCusto = custo;
 					melhorCliente_a = clienteA;
@@ -165,13 +184,24 @@ void Heuristica::insercaoMaisBarata(){
 				getchar();
 			}
 
-			if(melhorCusto != 0){
-				//s->setCliente(proximoCliente, clienteAnterior)
+			if(melhorCusto != 999999){
+				cout << "-------------------------------Iniciando Insercao---------------------------------" << endl;
 				s->setCliente(cliente, melhorCliente_a);
 				s->setCliente(melhorCliente_b, cliente);
-			
+				cout << "O melhor custo foi de: " << melhorCusto << endl;
+				cout << "A insercado do cliente: " << cliente << " entre " << melhorCliente_a << " " << melhorCliente_b << endl;
+
 				int funcaoObjetivo = s->getObjetivo() + melhorCusto; // O melhor custo vai ser negativo
 				s->setObjetivo(funcaoObjetivo);
+				int novaCapacidade = s->getCapacidade() - demanda_cliente;
+				s->setCapacidade(novaCapacidade);
+				cout << "Capacidade do veiculo apos insercao: " << s->getCapacidade() << endl;
+				clientesQueue[v] = false;
+				cout << "Novo caminho: ";
+				s->printaCaminhoTotal(0);
+				cout << endl;
+				cout << "-------------------------------Fim Insercao--------------------------------------" << endl;
+				getchar();
 			}
 		}
 		s->printaCaminhoTotal(0);
@@ -185,10 +215,6 @@ void Heuristica::insercaoMaisBarata(){
 }
 void Heuristica::solve(){
 	
-	/* Ordenacao dos clientes em ordem do maior para o menor em relacao a distancia do deposito	
-	 * A ordenacao eh feita em nlog(n)*/
-
-
 
 	insercaoMaisBarata();
 	
