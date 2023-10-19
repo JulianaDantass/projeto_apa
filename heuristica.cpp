@@ -16,7 +16,7 @@ Heuristica::Heuristica(int clientes, int qVeiculos, int capacidade, int minimo_e
 	this->custo_terceirizacao = custo_terceirizacao;
 	this->matriz_distancia = matriz_distancia;
 	
-	for(int i = 0; i < clientes; i++){
+	for(int i = 1; i < clientes + 1; i++){
 
 		clientesOrdenados.push_back(i);
 	}
@@ -49,23 +49,41 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 	
 	/* Geralmente vai funcionar em O(2) no pior caso será O(n)
 	 * Porém a complexidade justa é O(2)	*/
+	int cliente_anterior = 0;
 
 	for(int j = 0; j < clientes; j++){
+		
+		// Vamos pegar os mais distantes entre si
+		// Como o cliente anterior inicalmente eh o deposito
+		// pegamos o primeiro mais distante ao deposito e assim por diante
+		std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),[&](const int a, const int b){
+				return (*matriz_distancia)[a][cliente_anterior] <= (*matriz_distancia)[b][cliente_anterior];
+			});
+		
+
+		cout << "Ordenacao dos clientes em relacao a: " << cliente_anterior << endl;
+
+		for(int i = 0; i < clientesOrdenados.size(); i++){
+			cout << clientesOrdenados[i] << " ";
+		}
+		cout << endl;
+
+
 		int cliente_indice = clientesOrdenados.back();
-		int demanda_cliente = this->demanda->at(cliente_indice);
+		int demanda_cliente = this->demanda->at(cliente_indice - 1); // Damos -1 pois o vetor de demanda começa em zero
 		int capacidade = s->getCapacidade();
 
 		if(demanda_cliente <= capacidade){
 			int novaCapacidade = capacidade - demanda_cliente;
 			funcaoObjetivo = calculaObjetivo(s->getUltimoCliente(), cliente_indice, s->getObjetivo());
-			
+		
 			s->setCliente(cliente_indice, s->getUltimoCliente());
 			s->insereCaminhoFim(cliente_indice);
 			s->setObjetivo(funcaoObjetivo);
 			s->setCapacidade(novaCapacidade);
 			inseriu++;
 			clientesOrdenados.pop_back();
-			
+			cliente_anterior = cliente_indice;	
 			getchar();	
 		}
 		
@@ -107,11 +125,18 @@ void Heuristica::insercaoMaisBarata(){
 		
 		cout << "Quantia clientes: " << quantiaClientes << endl;
 
-		for(int v = 1; v < quantiaClientes; v++){
+		for(int v = 0; v < quantiaClientes; v++){
 			int cliente = clientesOrdenados[v];
 			
 			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
+			int demanda_cliente = this->demanda->at(cliente - 1);
+			
+			cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
+			if(demanda_cliente > capacidadeVeiculo){
 
+				cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
+				continue;
+			}
 			
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
@@ -122,6 +147,9 @@ void Heuristica::insercaoMaisBarata(){
 			while(1){
 				int clienteB = (*caminhoTotal)[clienteA];
 				cout << "Teste de insercao do cliente " << cliente << " Entre os clientes " << clienteA << " " << clienteB << endl;
+				cout << "Custo do rota " << clienteA << " e " << cliente << " :" << (*matriz_distancia)[clienteA][cliente] << endl;
+				cout << "Custo da rota " << clienteB << " e " << cliente << " :" << (*matriz_distancia)[clienteB][cliente] << endl;
+				cout << "Custo da antiga rota: " << (*matriz_distancia)[clienteA][clienteB] << endl;
 				custo = (*matriz_distancia)[clienteA][cliente] + (*matriz_distancia)[clienteB][cliente] - (*matriz_distancia)[clienteA][clienteB];
 				cout << "Custo de: " << custo << endl;
 				if (custo < 0 and custo < melhorCusto){
@@ -138,7 +166,7 @@ void Heuristica::insercaoMaisBarata(){
 			}
 
 			if(melhorCusto != 0){
-				//SetCliente(proximoCliente, clienteAnterior)
+				//s->setCliente(proximoCliente, clienteAnterior)
 				s->setCliente(cliente, melhorCliente_a);
 				s->setCliente(melhorCliente_b, cliente);
 			
@@ -160,19 +188,8 @@ void Heuristica::solve(){
 	/* Ordenacao dos clientes em ordem do maior para o menor em relacao a distancia do deposito	
 	 * A ordenacao eh feita em nlog(n)*/
 
-	std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),[&](const int a, const int b){
-				return (*matriz_distancia)[a][0] <= (*matriz_distancia)[b][0];
-			});
-	
 
-	cout << "Ordenacao dos clientes em relacao ao deposito: ";
 
-	for(int i = 0; i < clientesOrdenados.size(); i++){
-		cout << clientesOrdenados[i] << " ";
-	}
-	cout << endl;
-
-	cout << "here" << endl;	
 	insercaoMaisBarata();
 	
 }

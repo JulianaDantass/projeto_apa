@@ -15,7 +15,7 @@ Veiculo::Veiculo(int veiculo, int capacidade, int qClientes){
 	//Como iniciamos da garagem caminhoTotal[0] = 1 por exemplo indica que
 	//Do ponto 0 q é a garagem vamos para o indice caminhoTotal[1] = 2 caminhoTotal[2] = 3
 	//caminho total[3] = 0, logo o caminho do veiculo seria 0 -> 1 -> 2 -> 3 -> 0
-	for(int i = 0; i < qClientes; i++){
+	for(int i = 0; i < qClientes + 1; i++){
 
 		this->caminhoTotal.push_back(-1);
 	}
@@ -23,9 +23,9 @@ Veiculo::Veiculo(int veiculo, int capacidade, int qClientes){
 }
 
 void Veiculo::setCliente(int proximo_cliente, int clienteAnterior){
+
 	this->caminhoTotal[clienteAnterior] = proximo_cliente;
 	cout << "Cliente anterior: " << clienteAnterior << " vai para " << proximo_cliente << endl;
-
 }
 
 
