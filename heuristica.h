@@ -16,13 +16,13 @@ class Heuristica{
 		void solve();
 		void insercaoMaisBarata();	
 		void solucaoInicial(int indiceSolucao);
-		int calculaObjetivoIda(int cliente_anterior, int cliente_atual, int objetivo);
+		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 
 	private:
 		vector < Veiculo* > *veiculos;
 		vector < int > clientesTerceirizados;
-
+		int clientesAtendidos;
 		vector < int > clientesOrdenados;
 		int entregasRealizadas;
 		Instancia *dados;

@@ -10,6 +10,7 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	this->dados = dados_atuais;
 	this->entregasRealizadas = 0;
 	this->funcaoObjetiva = 0;
+	this->clientesAtendidos = 0;
 }
 
 void Heuristica::alocarRecursos(){
@@ -22,7 +23,7 @@ void Heuristica::alocarRecursos(){
 }
 
 /* Calculo responsável por realizar o calculo de um cliente a outro no grafo	*/
-int Heuristica::calculaObjetivoIda(int cliente_anterior, int cliente_atual, int objetivo){
+int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 
 	cout << "Cliente anterior: " << cliente_anterior << endl;
 	cout << "cliente atual: " << cliente_atual << endl;
@@ -65,14 +66,15 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 				return dados->matriz_distancias[a][cliente_anterior] >= dados->matriz_distancias[b][cliente_anterior];
 			});
 		
-
+		
+		
 		cout << "Ordenacao dos clientes em relacao a: " << cliente_anterior << endl;
 
 		for(int i = 0; i < clientesOrdenados.size(); i++){
 			cout << clientesOrdenados[i] << " ";
 		}
 		cout << endl;
-
+		
 		
 		
 		int cliente_indice = clientesOrdenados.back(); // Retirada do mais pŕoximo	
@@ -81,15 +83,21 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
 			
 			/* Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	*/
-			int funcaoObjetivoCalculoIda = calculaObjetivoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo());// calculo do custo de ida
-			funcaoObjetivoCalculoIda += dados->matriz_distancias[cliente_indice][0] + dados->custo_veiculo;
-			cout << "Custo da rota: " << funcaoObjetivoCalculoIda << endl;
+			int custoIdaTotal = custoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo());// calculo do custo de ida
+			
+			/* Verificamos se estamos inserindo o primeiro cliente
+			 * caso sim verificamos se vale a pena pagar o custo do veiculo mais o custo da distancia de ida ao cliente
+			 * ate a garagem, caso seja o segundo cliente nao precisamos mais considerar o custo do veiculo pois sabemos que ele será utilizado	*/
+			int custoPrimeiroCliente = (inseriu == 0 ? dados->matriz_distancias[cliente_indice][0] + dados->custo_veiculo : dados->matriz_distancias[cliente_indice][0]); 
+			custoIdaTotal += custoPrimeiroCliente;
+			cout << "Custo da rota: " << custoIdaTotal << endl;
 			cout << "Custo de terceiriza: " << custo_terceirizacao_cliente << endl;
-			if(custo_terceirizacao_cliente <= funcaoObjetivoCalculoIda){
+			if(custo_terceirizacao_cliente <= custoIdaTotal){
 				cout << "Cliente " << cliente_indice << " foi tercerizado" << endl;
-				clientesTerceirizados.push_back(cliente_indice);
-				this->funcaoObjetiva += custo_terceirizacao_cliente;
-				clientesOrdenados.pop_back();
+				clientesTerceirizados.push_back(cliente_indice); // Indica o cliente terceirizado
+				this->funcaoObjetiva += custo_terceirizacao_cliente; // Adiciona a terceirizacao
+				clientesOrdenados.pop_back(); // Retira dos clientes
+				clientesAtendidos++; // Diz que o cliente foi atendido
 				continue;
 			}
 		}
@@ -102,7 +110,7 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 			
 			int novaCapacidade = capacidade - demanda_cliente;
 		
-			funcaoObjetivo = calculaObjetivoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo()); // Calculo da Ida
+			funcaoObjetivo = custoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo()); // Calculo da Ida
 			s->setCliente(cliente_indice, s->getUltimoCliente()); // Seta o cliente como sendo o proximo na rota
 			s->insereCaminhoFim(cliente_indice); // Insere no fim do caminho do vetor 
 			s->setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
@@ -111,12 +119,13 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 			entregasRealizadas++; // Armaneza quantas entregas ja foi realizada
 			clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
 			cliente_anterior = cliente_indice;	 // Atualiza o cliente de referencia
+			clientesAtendidos++;
 			//getchar();	
 		}
 		
 	}
 	
-	funcaoObjetivo = calculaObjetivoIda(s->getUltimoCliente(), 0, s->getObjetivo());
+	funcaoObjetivo = custoIda(s->getUltimoCliente(), 0, s->getObjetivo());
 	s->setCliente(0, s->getUltimoCliente());
 	s->insereCaminhoFim(0);
 	s->setObjetivo(funcaoObjetivo);
@@ -150,7 +159,8 @@ void Heuristica::insercaoMaisBarata(){
 		 * seja porque a terceirizacao foi melhor */
 		if((veiculos->at(i)->getCaminhoInicial())->size() == 0)
 			continue;
-
+		
+		
 		cout << "Clientes apos a solucao Inicial: ";
 
 		for(int i = 0; i < clientesOrdenados.size(); i++){
@@ -158,6 +168,7 @@ void Heuristica::insercaoMaisBarata(){
 			cout << clientesOrdenados[i] << " ";
 		}
 		cout << endl;
+		
 
 		Veiculo* s = veiculos->at(i);
 		
@@ -180,6 +191,7 @@ void Heuristica::insercaoMaisBarata(){
 
 			int cliente = clientesOrdenados[v];
 			
+			
 			for(int i = 0; i < clientesOrdenados.size(); i++){
 
 				cout << clientesOrdenados[i] << " ";
@@ -197,7 +209,10 @@ void Heuristica::insercaoMaisBarata(){
 			
 			
 			/* O while é responsável por percorrer a arvore
-			 * e armazenar o melhor vértice para inserir o cliente atual	*/
+			 * e armazenar o melhor vértice para inserir o cliente atual
+			 * Começamos  o cliente A sendo zero que é a garagem
+			 * o caminho está como uma árvore logo vetor[a] = b, então 
+			 * o nó a possui o nó b como pai, paramos quando o pai for a garagem que vale zero*/
 			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
@@ -228,7 +243,9 @@ void Heuristica::insercaoMaisBarata(){
 			
 			/* Calculo do custo real do cliente
 			 * que é ir do melhorCLiente_A até o cliente atual +
-			 * ir do cliente atual ate o melhorCliente_b*/
+			 * ir do cliente atual ate o melhorCliente_b
+			 * se esse calculo for maior ou igual ao custo de terceirizar
+			 * iremos calaramente terceirizar*/
 			int custoDeEntradaCliente = melhorCusto + dados->matriz_distancias[melhorCliente_a][melhorCliente_b];
 			
 			/* Se o custo da terceirização for menor igual a esse custo a gente terceiriza	*/
@@ -243,6 +260,7 @@ void Heuristica::insercaoMaisBarata(){
 				/*--------------------------------------------------------------*/
 				this->funcaoObjetiva += custo_terceirizacao_cliente;
 				clientesTerceirizados.push_back(cliente);
+				clientesAtendidos++;
 				continue;
 
 			}
@@ -272,6 +290,7 @@ void Heuristica::insercaoMaisBarata(){
 				cout << "Novo caminho: ";
 				s->printaCaminhoTotal(0);
 				cout << endl;
+				clientesAtendidos++;
 				cout << "-------------------------------Fim Insercao--------------------------------------" << endl;
 			//	getchar();
 			}
@@ -285,7 +304,9 @@ void Heuristica::insercaoMaisBarata(){
 	}
 
 	cout << "Custo total apos o guloso: " << this->funcaoObjetiva << endl;
-
+	
+	if(dados->q_clientes == clientesAtendidos)
+		cout << "Todos os clientes foram atendidos" << endl;
 	
 }
 
