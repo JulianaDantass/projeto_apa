@@ -324,7 +324,8 @@ void Heuristica::insercaoMaisBarata(){
 		Veiculo* s = veiculos->at(i);
 		if(s == NULL)
 			continue;
-
+		
+		cout << "Objetivo do veiculo: " << s->getObjetivo() << endl;
 		cout << "Caminho do veiculo( " << i << "):";	
 		s->printaCaminhoTotal(0);
 		cout << endl;
