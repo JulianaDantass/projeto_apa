@@ -17,6 +17,10 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	}
 
 	veiculos = new vector <Veiculo*>(dados->q_veiculos);
+	
+	for(Veiculo *s : *veiculos){
+		s = NULL;
+	}
 }
 
 
@@ -38,7 +42,7 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
 	Veiculo* s = veiculos->at(indice_veiculo);
-	veiculosUtilizados.push_back(indice_veiculo);
+
 
 	s->insereCaminhoFim(0);
 
@@ -56,13 +60,13 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 	while(!clientesOrdenados.empty()){
 		
-		if(inseriu == 2)
+		if(inseriu == 2 or clientesOrdenados.back() == 0)
 			break;
 
 		/* Ordenacao dos clientes em ordem do maior para o menor em relacao ao cliente anterior	
 			* A ordenacao eh feita em nlog(n)*/
 		std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),[&](const int a, const int b){
-				return dados->matriz_distancias[a][cliente_anterior] >= dados->matriz_distancias[b][cliente_anterior];
+				return dados->matriz_distancias[a][cliente_anterior] <= dados->matriz_distancias[b][cliente_anterior];
 			});
 		
 		
@@ -123,11 +127,17 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 		}
 		
 	}
-	
-	funcaoObjetivo = custoIda(s->getUltimoCliente(), 0, s->getObjetivo());
-	s->setCliente(0, s->getUltimoCliente());
-	s->insereCaminhoFim(0);
-	s->setObjetivo(funcaoObjetivo);
+
+	/* Se o ultimo cliente for zero, é porque nao foi adicionado ninguem na solucao inicial	*/
+	if(s->getUltimoCliente() != 0){
+		funcaoObjetivo = custoIda(s->getUltimoCliente(), 0, s->getObjetivo());
+		s->setCliente(0, s->getUltimoCliente());
+		s->insereCaminhoFim(0);
+		s->setObjetivo(funcaoObjetivo);
+	}
+	else{
+		s->clearCaminhoInicial();
+	}
 	cout << "Capacidade do veiculo após solucao inicial: " << s->getCapacidade() << endl;
 
 }
@@ -302,12 +312,13 @@ void Heuristica::insercaoMaisBarata(){
 
 	}
 	
-	for(int  i = 0; i < veiculosUtilizados.size(); i++){
+	for(int  i = 0; i < veiculos->size(); i++){
 
-		Veiculo* s = veiculos->at(veiculosUtilizados[i]);
-		cout << "Caminho do veiculo( " << i << "):";	
-		if(s->getCaminhoInicial()->size() == 0)
+		Veiculo* s = veiculos->at(i);
+		if(s == NULL)
 			continue;
+
+		cout << "Caminho do veiculo( " << i << "):";	
 		s->printaCaminhoTotal(0);
 		cout << endl;
 	}
