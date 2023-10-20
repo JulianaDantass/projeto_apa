@@ -40,6 +40,8 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
 	Veiculo* s = veiculos->at(indice_veiculo);
+	veiculosUtilizados.push_back(indice_veiculo);
+
 	s->insereCaminhoFim(0);
 
 	int inseriu = 0;
@@ -302,7 +304,23 @@ void Heuristica::insercaoMaisBarata(){
 	//	getchar();
 
 	}
+	
+	for(int  i = 0; i < veiculosUtilizados.size(); i++){
 
+		Veiculo* s = veiculos->at(veiculosUtilizados[i]);
+		cout << "Caminho do veiculo( " << i << "):";	
+		if(s->getCaminhoInicial()->size() == 0)
+			continue;
+		s->printaCaminhoTotal(0);
+		cout << endl;
+	}
+	
+	cout << "Clientes terceirizados: ";
+	for(int i = 0; i < clientesTerceirizados.size(); i++){
+
+		cout << clientesTerceirizados[i] << " ";
+	}
+	cout << endl;
 	cout << "Custo total apos o guloso: " << this->funcaoObjetiva << endl;
 	
 	if(dados->q_clientes == clientesAtendidos)
