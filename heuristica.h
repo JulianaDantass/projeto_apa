@@ -14,7 +14,7 @@ class Heuristica{
 		~Heuristica();
 		void resolve();
 		void insercaoMaisBarata();	
-		void solucaoInicial(int indiceSolucao);
+		int solucaoInicial(int indiceSolucao);
 		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 

@@ -29,6 +29,10 @@ void Veiculo::setCliente(int proximo_cliente, int clienteAnterior){
 	cout << "Cliente anterior: " << clienteAnterior << " vai para " << proximo_cliente << endl;
 }
 
+int Veiculo::getProxCliente(int clienteAnterior){
+
+	return this->caminhoTotal[clienteAnterior];
+}
 void Veiculo::setCustoVeiculo(){
 
 	this->funcao_objetivo += custo;

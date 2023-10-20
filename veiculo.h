@@ -22,6 +22,8 @@ class Veiculo{
 		vector < int>* getCaminhoTotal(){return &this->caminhoTotal;};
 		void setCustoVeiculo();
 		void clearCaminhoInicial(){this->caminho.clear();};
+		int getProxCliente(int clienteAnterior);
+
 	private:
 		vector < int > caminho; // Caminho percorrido por aquele veiculo
 		vector < int > caminhoTotal; // Vetor de caminho total que será boleano para fazer a inserção em O(1)

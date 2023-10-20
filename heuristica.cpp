@@ -38,14 +38,12 @@ int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 
 
 
-void Heuristica::solucaoInicial(int indice_veiculo){
+int Heuristica::solucaoInicial(int indice_veiculo){
 
 	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
 	Veiculo* s = veiculos->at(indice_veiculo);
 
-
-	s->insereCaminhoFim(0);
-
+	s->setCliente(0, 0); // Começa a rota 0->0
 	int inseriu = 0;
 	int funcaoObjetivo = 0;
 	int cliente_anterior = 0;
@@ -81,16 +79,19 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 		
 		
 		int cliente_indice = clientesOrdenados.back(); // Retirada do mais pŕoximo	
-
-		if(entregasRealizadas >= dados->minimo_entregas){
+		
+	
+		if(entregasRealizadas >= dados->minimo_entregas and clientesOrdenados.size() == 1){
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
 			
-			/* Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	*/
-			int custoIdaTotal = custoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo());// calculo do custo de ida
+			// Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	
+			int custoIdaTotal = custoIda(cliente_anterior, cliente_indice, s->getObjetivo());// calculo do custo de ida
 			
-			/* Verificamos se estamos inserindo o primeiro cliente
+			/*
+			 Verificamos se estamos inserindo o primeiro cliente
 			 * caso sim verificamos se vale a pena pagar o custo do veiculo mais o custo da distancia de ida ao cliente
-			 * ate a garagem, caso seja o segundo cliente nao precisamos mais considerar o custo do veiculo pois sabemos que ele será utilizado	*/
+			 * ate a garagem, caso seja o segundo cliente nao precisamos mais considerar o custo do veiculo pois sabemos que ele será utilizado*/
+
 			int custoPrimeiroCliente = (inseriu == 0 ? dados->matriz_distancias[cliente_indice][0] + dados->custo_veiculo : dados->matriz_distancias[cliente_indice][0]); 
 			custoIdaTotal += custoPrimeiroCliente;
 			cout << "Custo da rota: " << custoIdaTotal << endl;
@@ -104,7 +105,8 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 				continue;
 			}
 		}
-			
+		
+		
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 
 		int demanda_cliente = dados->demandas[cliente_indice]; 
@@ -112,10 +114,10 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 		if(demanda_cliente <= capacidade){
 			
 			int novaCapacidade = capacidade - demanda_cliente;
-		
-			funcaoObjetivo = custoIda(s->getUltimoCliente(), cliente_indice, s->getObjetivo()); // Calculo da Ida
-			s->setCliente(cliente_indice, s->getUltimoCliente()); // Seta o cliente como sendo o proximo na rota
-			s->insereCaminhoFim(cliente_indice); // Insere no fim do caminho do vetor 
+			
+			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, s->getObjetivo());
+
+			s->setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
 			s->setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
 			s->setCapacidade(novaCapacidade);  // Seta nova capacidade
 			inseriu++; // Variavel que indica se ja foi inserido na rota
@@ -127,19 +129,19 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 		}
 		
 	}
-
+	
+	
+	cout << "Capacidade do veiculo após solucao inicial: " << s->getCapacidade() << endl;
 	/* Se o ultimo cliente for zero, é porque nao foi adicionado ninguem na solucao inicial	*/
-	if(s->getUltimoCliente() != 0){
-		funcaoObjetivo = custoIda(s->getUltimoCliente(), 0, s->getObjetivo());
-		s->setCliente(0, s->getUltimoCliente());
+	if(s->getProxCliente(cliente_anterior) != 0){
+		funcaoObjetivo = custoIda(cliente_anterior, 0, s->getObjetivo());
+		s->setCliente(0, cliente_anterior);
 		s->insereCaminhoFim(0);
 		s->setObjetivo(funcaoObjetivo);
+		return 1;
+	}else{
+		return -1;
 	}
-	else{
-		s->clearCaminhoInicial();
-	}
-	cout << "Capacidade do veiculo após solucao inicial: " << s->getCapacidade() << endl;
-
 }
 
 
@@ -161,14 +163,18 @@ void Heuristica::insercaoMaisBarata(){
 
 		cout << "Solucao inicial para o veiculo: " << i << endl;
 		cout << "-----------------Gerando Solucao Inicial----------------------------------" << endl;
-		solucaoInicial(i); //Constroi a solução inicial
+		int resultado = solucaoInicial(i); //Constroi a solução inicial
 		cout << endl << "------------------------------------------------------------------" << endl;
 		
 		/* Quer dizer que nao foi construido uma solucao inicial para o veiculo
 		 * seja porque a terceirizacao foi melhor */
-		if((veiculos->at(i)->getCaminhoInicial())->size() == 0)
+		if(resultado == -1){
+			delete veiculos->at(i);
+			veiculos->at(i) = NULL;
 			continue;
+		}
 		
+		veiculos->at(i)->setCustoVeiculo();
 		
 		cout << "Clientes apos a solucao Inicial: ";
 
