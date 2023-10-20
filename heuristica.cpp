@@ -175,6 +175,7 @@ void Heuristica::insercaoMaisBarata(){
 		}
 		
 		veiculos->at(i)->setCustoVeiculo();
+		cout << "Custo total apos primeira solucao: " << veiculos->at(i)->getObjetivo() << endl;
 		
 		cout << "Clientes apos a solucao Inicial: ";
 
