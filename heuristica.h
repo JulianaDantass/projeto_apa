@@ -12,19 +12,18 @@ class Heuristica{
 	public:
 		Heuristica(Instancia* dados);
 		~Heuristica();
-		void alocarRecursos();
-		void solve();
+		void resolve();
 		void insercaoMaisBarata();	
 		void solucaoInicial(int indiceSolucao);
 		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 
 	private:
-		vector < Veiculo* > *veiculos;
-		vector< int > veiculosUtilizados;
-		vector < int > clientesTerceirizados;
+		vector <Veiculo*> *veiculos;
+		vector<int> veiculosUtilizados;
+		vector <int> clientesTerceirizados;
 		int clientesAtendidos;
-		vector < int > clientesOrdenados;
+		vector <int> clientesOrdenados;
 		int entregasRealizadas;
 		Instancia *dados;
 		int funcaoObjetiva;

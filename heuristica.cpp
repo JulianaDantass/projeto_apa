@@ -11,16 +11,14 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	this->entregasRealizadas = 0;
 	this->funcaoObjetiva = 0;
 	this->clientesAtendidos = 0;
-}
 
-void Heuristica::alocarRecursos(){
-	
 	for(int i = 1; i < (dados->q_clientes) + 1; i++){
 		clientesOrdenados.push_back(i);
 	}
 
 	veiculos = new vector <Veiculo*>(dados->q_veiculos);
 }
+
 
 /* Calculo responsável por realizar o calculo de um cliente a outro no grafo	*/
 int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
@@ -46,7 +44,6 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 	int inseriu = 0;
 	int funcaoObjetivo = 0;
-	
 	int cliente_anterior = 0;
 
 	/* Esse loop vai pegar um cliente inicial
@@ -138,9 +135,9 @@ void Heuristica::solucaoInicial(int indice_veiculo){
 
 
 /* A insercao do mais proximo
- * será realizada inicalmente um veiculo por vez
- * pegamos inicialmente uma solucao inicial formada por 2 vertices mais o deposito
- * e fazemos isso para todo veiculo	*/
+ * será realizada com um veiculo por vez
+ * pegamos inicialmente uma solucao inicial formada por 2 vertices + deposito
+ * e calculamos a insercao mais barata*/
 
 void Heuristica::insercaoMaisBarata(){
 		
@@ -328,9 +325,8 @@ void Heuristica::insercaoMaisBarata(){
 	
 }
 
-void Heuristica::solve(){
-	
-	alocarRecursos();
+void Heuristica::resolve(){
+
 	auto inicio = std::chrono::high_resolution_clock::now();
 	insercaoMaisBarata();	
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;

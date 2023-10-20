@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 
         Heuristica heuristica(&dados);
         dados.exibir(); 
-		heuristica.solve();
+		heuristica.resolve();
 
     }
     
