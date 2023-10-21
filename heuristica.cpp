@@ -17,7 +17,7 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 		clientesOrdenados.push_back(i);
 	}
 
-	veiculos.resize(dados->q_veiculos+1);
+	//veiculos.resize(dados->q_veiculos+1);
 	
 	// for(Veiculo *s : *veiculos){
 	// 	s = NULL;
@@ -39,15 +39,14 @@ int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 
 
 
-int Heuristica::solucaoInicial(int indice_veiculo){
+Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 
-	//veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
-	//Veiculo* s = veiculos->at(indice_veiculo);
+	Veiculo veiculo;
 
-	veiculos[indice_veiculo].editaParametros(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
-	
+	veiculo.editaParametros(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
 
-	veiculos[indice_veiculo].setCliente(0, 0); // Começa a rota 0->0
+
+	veiculo.setCliente(0, 0); // Começa a rota 0->0
 	int inseriu = 0;
 	int funcaoObjetivo = 0;
 	int cliente_anterior = 0;
@@ -114,16 +113,16 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 
 		int demanda_cliente = dados->demandas[cliente_indice]; 
-		int capacidade = veiculos[indice_veiculo].getCapacidade();
+		int capacidade = veiculo.getCapacidade();
 		if(demanda_cliente <= capacidade){
 			
 			int novaCapacidade = capacidade - demanda_cliente;
 			
-			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, veiculos[indice_veiculo].getObjetivo());
+			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, veiculo.getObjetivo());
 
-			veiculos[indice_veiculo].setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
-			veiculos[indice_veiculo].setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
-			veiculos[indice_veiculo].setCapacidade(novaCapacidade);  // Seta nova capacidade
+			veiculo.setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
+			veiculo.setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
+			veiculo.setCapacidade(novaCapacidade);  // Seta nova capacidade
 			inseriu++; // Variavel que indica se ja foi inserido na rota
 			entregasRealizadas++; // Armaneza quantas entregas ja foi realizada
 			clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
@@ -135,17 +134,16 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 	}
 	
 	
-	cout << "Capacidade do veiculo após solucao inicial: " << veiculos[indice_veiculo].getCapacidade() << endl;
+	cout << "Capacidade do veiculo após solucao inicial: " << veiculo.getCapacidade() << endl;
 	/* Se o ultimo cliente for zero, é porque nao foi adicionado ninguem na solucao inicial	*/
-	if(veiculos[indice_veiculo].getProxCliente(cliente_anterior) != 0){
-		funcaoObjetivo = custoIda(cliente_anterior, 0, veiculos[indice_veiculo].getObjetivo());
-		veiculos[indice_veiculo].setCliente(0, cliente_anterior);
-		veiculos[indice_veiculo].insereCaminhoFim(0);
-		veiculos[indice_veiculo].setObjetivo(funcaoObjetivo);
-		return 1;
-	}else{
-		return -1;
-	}
+	
+	funcaoObjetivo = custoIda(cliente_anterior, 0, veiculo.getObjetivo());
+	veiculo.setCliente(0, cliente_anterior);
+	veiculo.insereCaminhoFim(0);
+	veiculo.setObjetivo(funcaoObjetivo);
+	
+	return veiculo;
+	
 }
 
 
@@ -167,17 +165,17 @@ void Heuristica::insercaoMaisBarata(){
 
 		cout << "Solucao inicial para o veiculo: " << i << endl;
 		cout << "-----------------Gerando Solucao Inicial----------------------------------" << endl;
-		int resultado = solucaoInicial(i); //Constroi a solução inicial
+		Veiculo veiculo = solucaoInicial(i); //Constroi a solução inicial
 		cout << endl << "------------------------------------------------------------------" << endl;
 		
 		/* Quer dizer que nao foi construido uma solucao inicial para o veiculo
 		 * seja porque a terceirizacao foi melhor */
-		// if(resultado == -1){
-		// 	//delete veiculos->at(i);
-		// 	//veiculos->at(i) = NULL;
-		// 	continue;
-		// }
+		 if(veiculo.getProxCliente(0) == 0){
+		 	continue;
+		 }
 		
+		veiculos.push_back(veiculo);
+
 		veiculos[i].setCustoVeiculo();
 		cout << "Custo total apos primeira solucao: " << veiculos[i].getObjetivo() << endl;
 		
@@ -317,13 +315,13 @@ void Heuristica::insercaoMaisBarata(){
 
 	}
 	
-	// for(int  i = 0; i < veiculos.size(); i++){
+	 for(int  i = 0; i < veiculos.size(); i++){
 		
-	// 	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
-	// 	cout << "Caminho do veiculo( " << i << "):";	
-	// 	veiculos[i].printaCaminhoTotal(0);
-	// 	cout << endl;
-	// }
+	 	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
+	 	cout << "Caminho do veiculo( " << i << "):";	
+	 	veiculos[i].printaCaminhoTotal(0);
+	 	cout << endl;
+	 }
 	
 	// cout << "Clientes terceirizados: ";
 	// for(int i = 0; i < clientesTerceirizados.size(); i++){
