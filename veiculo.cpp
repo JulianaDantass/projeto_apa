@@ -15,7 +15,6 @@ void Veiculo::editaParametros(int veiculo, int capacidade, int qClientes, int cu
 	this->capacidade = capacidade;
 	this->custo = custoVeiculo;
 	this->funcao_objetivo = 0;
-	this->caminho.clear();
 	//O vetor caminhoTotal vai indicar o caminho percorrido pelo veiculo
 	//Como iniciamos da garagem caminhoTotal[0] = 1 por exemplo indica que
 	//Do ponto 0 q é a garagem vamos para o indice caminhoTotal[1] = 2 caminhoTotal[2] = 3
@@ -53,22 +52,6 @@ int Veiculo::printaCaminhoTotal(int pontoInicial){
 		return proxCliente;
 	}
 
-}
-
-void Veiculo::insereCaminhoFim(int cliente){
-	
-	this->caminho.push_back(cliente);
-
-}
-
-int Veiculo::getUltimoCliente(){
-
-	return this->caminho.back();
-}
-
-vector < int> * Veiculo::getCaminhoInicial(){
-
-	return &this->caminho;
 }
 
 void Veiculo::setObjetivo(int valor){
