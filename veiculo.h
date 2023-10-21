@@ -8,7 +8,8 @@ using namespace std;
 class Veiculo{
 	
 	public:
-		Veiculo(int veiculo, int demanda, int quantidadeCliente, int custoVeiculo);
+		Veiculo();
+		void editaParametros(int veiculo, int demanda, int quantidadeCliente, int custoVeiculo);
 		void insereCaminhoFim(int cliente);
 		int getObjetivo();
 		void setObjetivo(int valor);

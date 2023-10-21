@@ -2,10 +2,14 @@
 #include <iostream>
 using namespace std;
 
+Veiculo::Veiculo(){
+	this->veiculo = -1;
+	this->capacidade = -1;
+	this->custo = -1;
+	this->funcao_objetivo = 0;
+}
 
-
-
-Veiculo::Veiculo(int veiculo, int capacidade, int qClientes, int custoVeiculo){
+void Veiculo::editaParametros(int veiculo, int capacidade, int qClientes, int custoVeiculo){
 
 	this->veiculo = veiculo;
 	this->capacidade = capacidade;

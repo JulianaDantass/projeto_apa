@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <vector>
 
 #define QTD_VIZINHANCAS 3
 
@@ -16,11 +17,11 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 		clientesOrdenados.push_back(i);
 	}
 
-	veiculos = new vector <Veiculo*>(dados->q_veiculos);
+	veiculos.resize(dados->q_veiculos+1);
 	
-	for(Veiculo *s : *veiculos){
-		s = NULL;
-	}
+	// for(Veiculo *s : *veiculos){
+	// 	s = NULL;
+	// }
 }
 
 
@@ -40,10 +41,13 @@ int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 
 int Heuristica::solucaoInicial(int indice_veiculo){
 
-	veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
-	Veiculo* s = veiculos->at(indice_veiculo);
+	//veiculos->at(indice_veiculo) = new Veiculo(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
+	//Veiculo* s = veiculos->at(indice_veiculo);
 
-	s->setCliente(0, 0); // Começa a rota 0->0
+	veiculos[indice_veiculo].editaParametros(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
+	
+
+	veiculos[indice_veiculo].setCliente(0, 0); // Começa a rota 0->0
 	int inseriu = 0;
 	int funcaoObjetivo = 0;
 	int cliente_anterior = 0;
@@ -85,7 +89,7 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
 				
 			// Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	
-			int custoIdaTotal = custoIda(cliente_anterior, cliente_indice, s->getObjetivo());// calculo do custo de ida
+			int custoIdaTotal = custoIda(cliente_anterior, cliente_indice, veiculos[indice_veiculo].getObjetivo());// calculo do custo de ida
 			
 			/*
 			 Verificamos se estamos inserindo o primeiro cliente
@@ -110,16 +114,16 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 
 		int demanda_cliente = dados->demandas[cliente_indice]; 
-		int capacidade = s->getCapacidade();
+		int capacidade = veiculos[indice_veiculo].getCapacidade();
 		if(demanda_cliente <= capacidade){
 			
 			int novaCapacidade = capacidade - demanda_cliente;
 			
-			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, s->getObjetivo());
+			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, veiculos[indice_veiculo].getObjetivo());
 
-			s->setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
-			s->setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
-			s->setCapacidade(novaCapacidade);  // Seta nova capacidade
+			veiculos[indice_veiculo].setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
+			veiculos[indice_veiculo].setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
+			veiculos[indice_veiculo].setCapacidade(novaCapacidade);  // Seta nova capacidade
 			inseriu++; // Variavel que indica se ja foi inserido na rota
 			entregasRealizadas++; // Armaneza quantas entregas ja foi realizada
 			clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
@@ -131,13 +135,13 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 	}
 	
 	
-	cout << "Capacidade do veiculo após solucao inicial: " << s->getCapacidade() << endl;
+	cout << "Capacidade do veiculo após solucao inicial: " << veiculos[indice_veiculo].getCapacidade() << endl;
 	/* Se o ultimo cliente for zero, é porque nao foi adicionado ninguem na solucao inicial	*/
-	if(s->getProxCliente(cliente_anterior) != 0){
-		funcaoObjetivo = custoIda(cliente_anterior, 0, s->getObjetivo());
-		s->setCliente(0, cliente_anterior);
-		s->insereCaminhoFim(0);
-		s->setObjetivo(funcaoObjetivo);
+	if(veiculos[indice_veiculo].getProxCliente(cliente_anterior) != 0){
+		funcaoObjetivo = custoIda(cliente_anterior, 0, veiculos[indice_veiculo].getObjetivo());
+		veiculos[indice_veiculo].setCliente(0, cliente_anterior);
+		veiculos[indice_veiculo].insereCaminhoFim(0);
+		veiculos[indice_veiculo].setObjetivo(funcaoObjetivo);
 		return 1;
 	}else{
 		return -1;
@@ -168,14 +172,14 @@ void Heuristica::insercaoMaisBarata(){
 		
 		/* Quer dizer que nao foi construido uma solucao inicial para o veiculo
 		 * seja porque a terceirizacao foi melhor */
-		if(resultado == -1){
-			delete veiculos->at(i);
-			veiculos->at(i) = NULL;
-			continue;
-		}
+		// if(resultado == -1){
+		// 	//delete veiculos->at(i);
+		// 	//veiculos->at(i) = NULL;
+		// 	continue;
+		// }
 		
-		veiculos->at(i)->setCustoVeiculo();
-		cout << "Custo total apos primeira solucao: " << veiculos->at(i)->getObjetivo() << endl;
+		veiculos[i].setCustoVeiculo();
+		cout << "Custo total apos primeira solucao: " << veiculos[i].getObjetivo() << endl;
 		
 		cout << "Clientes apos a solucao Inicial: ";
 
@@ -185,11 +189,8 @@ void Heuristica::insercaoMaisBarata(){
 		}
 		cout << endl;
 		
-
-		Veiculo* s = veiculos->at(i);
 		
-		s->printaCaminhoTotal(0);
-	//	getchar();
+		veiculos[i].printaCaminhoTotal(0);
 		
 		/* O loop começa do ultimo cliente no vetor
 		 * Se houver capacidade para aquele cliente
@@ -202,22 +203,20 @@ void Heuristica::insercaoMaisBarata(){
 		for(int v = clientesOrdenados.size() - 1; v >= 0; v--){
 			
 			/* Se o veiculo não tiver capacidade, paramos o codigo	*/
-			if(s->getCapacidade() <= 0)
+			if( veiculos[i].getCapacidade() <= 0)
 				break;
 
 			int cliente = clientesOrdenados[v];
-			
 			
 			for(int i = 0; i < clientesOrdenados.size(); i++){
 
 				cout << clientesOrdenados[i] << " ";
 			}
 			
-			
 			/* Se a demanda do cliente for maior do que a capacidade, então pulamos para o proximo cliente	*/
 			int demanda_cliente = dados->demandas[cliente];
 			cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
-			if(demanda_cliente > s->getCapacidade()){
+			if(demanda_cliente >  veiculos[i].getCapacidade()){
 				
 				cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
 				continue;
@@ -229,7 +228,7 @@ void Heuristica::insercaoMaisBarata(){
 			 * Começamos  o cliente A sendo zero que é a garagem
 			 * o caminho está como uma árvore logo vetor[a] = b, então 
 			 * o nó a possui o nó b como pai, paramos quando o pai for a garagem que vale zero*/
-			vector < int> *caminhoTotal = veiculos->at(i)->getCaminhoTotal();
+			vector < int> *caminhoTotal = veiculos[i].getCaminhoTotal();
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
 			int custo = 0;
@@ -254,7 +253,6 @@ void Heuristica::insercaoMaisBarata(){
 					break;
 				}
 				clienteA = clienteB;
-				//getchar();
 			}
 			
 			/* Calculo do custo real do cliente
@@ -283,18 +281,18 @@ void Heuristica::insercaoMaisBarata(){
 
 			if(melhorCusto != 999999){
 				cout << "-------------------------------Iniciando Insercao---------------------------------" << endl;
-				s->setCliente(cliente, melhorCliente_a); // Seta o pai de melhor_Cliente_a como cliente
-				s->setCliente(melhorCliente_b, cliente); // Seta o pai de cliente como melhorCliente)b
+				 veiculos[i].setCliente(cliente, melhorCliente_a); // Seta o pai de melhor_Cliente_a como cliente
+				 veiculos[i].setCliente(melhorCliente_b, cliente); // Seta o pai de cliente como melhorCliente)b
 
 				cout << "O melhor custo foi de: " << melhorCusto << endl;
 				cout << "A insercado do cliente: " << cliente << " entre " << melhorCliente_a << " " << melhorCliente_b << endl;
 
-				int funcaoObjetivo = s->getObjetivo() + melhorCusto;
-				s->setObjetivo(funcaoObjetivo);
+				int funcaoObjetivo =  veiculos[i].getObjetivo() + melhorCusto;
+				 veiculos[i].setObjetivo(funcaoObjetivo);
 				cout << "Valor da nova funcao objetivo: " << funcaoObjetivo << endl;
-				int novaCapacidade = s->getCapacidade() - demanda_cliente;
-				s->setCapacidade(novaCapacidade);
-				cout << "Capacidade do veiculo apos insercao: " << s->getCapacidade() << endl;
+				int novaCapacidade =  veiculos[i].getCapacidade() - demanda_cliente;
+				 veiculos[i].setCapacidade(novaCapacidade);
+				cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].getCapacidade() << endl;
 				
 				/* Troca a posicao com o ultimo e da o pop_back	*/
 				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1];
@@ -304,43 +302,39 @@ void Heuristica::insercaoMaisBarata(){
 				/*-------------------------------------------*/
 				entregasRealizadas++;
 				cout << "Novo caminho: ";
-				s->printaCaminhoTotal(0);
+				 veiculos[i].printaCaminhoTotal(0);
 				cout << endl;
 				clientesAtendidos++;
 				cout << "-------------------------------Fim Insercao--------------------------------------" << endl;
 			//	getchar();
 			}
 		}
-		s->printaCaminhoTotal(0);
+		 veiculos[i].printaCaminhoTotal(0);
 		cout << endl;
-		this->funcaoObjetivo += s->getObjetivo();
+		this->funcaoObjetivo +=  veiculos[i].getObjetivo();
 
 	//	getchar();
 
 	}
 	
-	for(int  i = 0; i < veiculos->size(); i++){
-
-		Veiculo* s = veiculos->at(i);
-		if(s == NULL)
-			continue;
+	// for(int  i = 0; i < veiculos.size(); i++){
 		
-		cout << "Objetivo do veiculo: " << s->getObjetivo() << endl;
-		cout << "Caminho do veiculo( " << i << "):";	
-		s->printaCaminhoTotal(0);
-		cout << endl;
-	}
+	// 	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
+	// 	cout << "Caminho do veiculo( " << i << "):";	
+	// 	veiculos[i].printaCaminhoTotal(0);
+	// 	cout << endl;
+	// }
 	
-	cout << "Clientes terceirizados: ";
-	for(int i = 0; i < clientesTerceirizados.size(); i++){
+	// cout << "Clientes terceirizados: ";
+	// for(int i = 0; i < clientesTerceirizados.size(); i++){
 
-		cout << clientesTerceirizados[i] << " ";
-	}
-	cout << endl;
+	// 	cout << clientesTerceirizados[i] << " ";
+	// }
+	// cout << endl;
 	cout << "Custo total apos o guloso: " << this->funcaoObjetivo << endl;
 	
-	if(dados->q_clientes == clientesAtendidos)
-		cout << "Todos os clientes foram atendidos" << endl;
+	// if(dados->q_clientes == clientesAtendidos)
+	// 	cout << "Todos os clientes foram atendidos" << endl;
 	
 }
 

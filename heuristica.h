@@ -19,7 +19,7 @@ class Heuristica{
 		void VND();
 
 	private:
-		vector <Veiculo*> *veiculos;
+		vector <Veiculo> veiculos;
 		vector <int> clientesTerceirizados;
 		int clientesAtendidos;
 		vector <int> clientesOrdenados;
