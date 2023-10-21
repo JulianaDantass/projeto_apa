@@ -9,7 +9,7 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	
 	this->dados = dados_atuais;
 	this->entregasRealizadas = 0;
-	this->funcaoObjetiva = 0;
+	this->funcaoObjetivo = 0;
 	this->clientesAtendidos = 0;
 
 	for(int i = 1; i < (dados->q_clientes) + 1; i++){
@@ -78,12 +78,12 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 		
 		
 		
-		int cliente_indice = clientesOrdenados.back(); // Retirada do mais pŕoximo	
+		int cliente_indice = clientesOrdenados.back(); // Retirada do mais longe	
 		
 	
 		if(entregasRealizadas >= dados->minimo_entregas and clientesOrdenados.size() == 1){
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
-			
+				
 			// Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	
 			int custoIdaTotal = custoIda(cliente_anterior, cliente_indice, s->getObjetivo());// calculo do custo de ida
 			
@@ -99,7 +99,7 @@ int Heuristica::solucaoInicial(int indice_veiculo){
 			if(custo_terceirizacao_cliente <= custoIdaTotal){
 				cout << "Cliente " << cliente_indice << " foi tercerizado" << endl;
 				clientesTerceirizados.push_back(cliente_indice); // Indica o cliente terceirizado
-				this->funcaoObjetiva += custo_terceirizacao_cliente; // Adiciona a terceirizacao
+				this->funcaoObjetivo += custo_terceirizacao_cliente; // Adiciona a terceirizacao
 				clientesOrdenados.pop_back(); // Retira dos clientes
 				clientesAtendidos++; // Diz que o cliente foi atendido
 				continue;
@@ -274,7 +274,7 @@ void Heuristica::insercaoMaisBarata(){
 				clientesOrdenados[v] = ultimo_cliente;	
 				clientesOrdenados.pop_back();
 				/*--------------------------------------------------------------*/
-				this->funcaoObjetiva += custo_terceirizacao_cliente;
+				this->funcaoObjetivo += custo_terceirizacao_cliente;
 				clientesTerceirizados.push_back(cliente);
 				clientesAtendidos++;
 				continue;
@@ -313,7 +313,7 @@ void Heuristica::insercaoMaisBarata(){
 		}
 		s->printaCaminhoTotal(0);
 		cout << endl;
-		this->funcaoObjetiva += s->getObjetivo();
+		this->funcaoObjetivo += s->getObjetivo();
 
 	//	getchar();
 
@@ -337,7 +337,7 @@ void Heuristica::insercaoMaisBarata(){
 		cout << clientesTerceirizados[i] << " ";
 	}
 	cout << endl;
-	cout << "Custo total apos o guloso: " << this->funcaoObjetiva << endl;
+	cout << "Custo total apos o guloso: " << this->funcaoObjetivo << endl;
 	
 	if(dados->q_clientes == clientesAtendidos)
 		cout << "Todos os clientes foram atendidos" << endl;

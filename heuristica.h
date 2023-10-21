@@ -25,7 +25,7 @@ class Heuristica{
 		vector <int> clientesOrdenados;
 		int entregasRealizadas;
 		Instancia *dados;
-		int funcaoObjetiva;
+		int funcaoObjetivo;
 };
 
 
