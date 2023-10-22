@@ -4,6 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <time.h>
+#include <cstdlib> 
 
 using namespace std;
 #define QTD_VIZINHANCAS 3
@@ -18,12 +19,6 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	for(int i = 1; i < (dados->q_clientes) + 1; i++){
 		clientesOrdenados.push_back(i);
 	}
-
-	//veiculos.resize(dados->q_veiculos+1);
-	
-	// for(Veiculo *s : *veiculos){
-	// 	s = NULL;
-	// }
 }
 
 
@@ -38,8 +33,6 @@ int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 	cout << "FuncaoObjetivo apos o calculo: " << funcaoObjetivo << endl;	
 	return funcaoObjetivo;
 }
-
-
 
 Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 
@@ -352,38 +345,129 @@ void Heuristica::resolve(){
 
 	auto inicio = std::chrono::high_resolution_clock::now();
 	insercaoMaisBarata();	
+	VND();
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
 	long long microsecond = std::chrono::duration_cast<std::chrono::microseconds>(resultado).count();
 	cout << "Tempo(ms): " << microsecond << endl;
 }
 
-// void Heuristica::VND(){
+void Heuristica::VND(){
 
-// 	for(int i = 0; i < qtd_rotas; i++){
+	system("clear");
 
-// 		int contador = 0; 
-// 		double solucao_vizinhanca = solucao_original;
-// 		while(contador < QTD_VIZINHANCAS){
+	int contador = 0; 
+	bool melhorou_solucao = 0;
+	while(contador < QTD_VIZINHANCAS){
 
-// 			switch(contador){
-// 				case 0:
-// 					swap();
-// 				case 1: 
-// 					reinsertion();
-// 				case 2:
-// 					swap_entre_rotas();
-// 			}
+		switch(contador){
+			case 0:
+				melhorou_solucao = reinsertion();
+				break;
+			case 1: 
+				//reinsertion();
+				break;
+			case 2:
+				//swap_entre_rotas();
+				break;
+		}
 
-// 			if(solucao_vizinhanca < solucao_original){            //se a vizinhanca melhorar a solucao
-// 				solucao_original = solucao_vizinhanca;
-// 				contador = 0;
+		if(melhorou_solucao){            //se a vizinhanca melhorar a solucao
+			contador = 0;
 
-// 			}else{
-// 				contador++;
-// 			}
-// 		}
-// 	}	
-// }
+		}else{
+			contador++;
+		}
+	}
+
+}
+
+bool Heuristica::reinsertion(){
+
+	bool houve_melhoria_rotas = 0;
+
+	for(int v = 0; v < veiculos.size(); v++){
+
+		std::vector<int> rota;
+		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+
+
+		int ponto_rota = 0;
+		rota.push_back(0);
+		while(1){ //colocando a rota num vector com APENAS os vertices visitidos de fato pelo veiculo
+
+			int cliente = (*ptr_rota)[ponto_rota];
+			rota.push_back(cliente);
+
+			if (cliente == 0){
+				break;
+			}else{
+				ponto_rota = cliente;
+			}
+		}          
+		
+		double delta, 
+		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
+		int melhor_i, melhor_j;       //vao guardar os indices de melhor troca
+
+
+		for(int i = 1; i < rota.size(); i++){
+
+			for(int j = 1; j < rota.size(); j++){
+
+				if(i == j){
+					continue;
+
+				}else if (i > j){
+
+					delta = -dados->matriz_distancias[rota[j-1]][rota[j]] -dados->matriz_distancias[rota[j]][rota[j+1]] 
+							-dados->matriz_distancias[rota[i]][rota[i+1]] +dados->matriz_distancias[rota[j-1]][rota[j+1]] 
+							+dados->matriz_distancias[rota[i]][rota[j]] +dados->matriz_distancias[rota[j]][rota[i+1]]; 
+
+				}else if(i == j-1){
+
+					delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[j]][rota[j+1]]
+							+dados->matriz_distancias[rota[i-1]][rota[j]] +dados->matriz_distancias[rota[i]][rota[j+1]];
+
+				}else if(i < j){
+					
+					delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[j-1]][rota[j]] 
+							-dados->matriz_distancias[rota[j]][rota[j+1]] +dados->matriz_distancias[rota[i-1]][rota[j]] 
+							+dados->matriz_distancias[rota[j]][rota[i]] +dados->matriz_distancias[rota[j-1]][rota[j+1]];
+				}
+				
+				if (delta < melhor_delta){ // se delta for menor que o melhor delta atual significa que melhorou a solucao
+
+					melhor_delta = delta;  //atualiza o delta pra uma nova comparacao
+					melhor_i = i;          //guarda o indice i da melhor troca
+					melhor_j = j;          //guarda o indice j da melhor troca
+				}
+			}
+		}
+	
+		if (melhor_delta < 0){
+			if(melhor_i > melhor_j){
+
+				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);      // o antecessor do melhor j vai apontar pro sucessor de j
+				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);           //o melhorj vai apontar pro melhor i
+				veiculos[v].setCliente(rota[melhor_i+1], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i
+				
+			}else{
+
+				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);      
+				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);          
+				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_i]);        
+			}
+			
+			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
+			funcaoObjetivo = funcaoObjetivo + melhor_delta;                       //atualizando a funcao objetivo geral
+
+			houve_melhoria_rotas = 1;     //corfirmando se ouve melhoria em alguma rota
+      	}
+
+	}
+
+	return houve_melhoria_rotas; //retorna se ouve melhoria para o VND
+}
 
 Heuristica::~Heuristica(){
 	

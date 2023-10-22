@@ -18,12 +18,12 @@ class Veiculo{
 						
 		
 		int printaCaminhoTotal(int cliente);
-		vector < int>* getCaminhoTotal(){return &this->caminhoTotal;};
+		vector <int> *getCaminhoTotal(){return &this->caminhoTotal;};
 		void setCustoVeiculo();
 		int getProxCliente(int clienteAnterior);
 
 	private:
-		vector < int > caminhoTotal; // Vetor de caminho total que será boleano para fazer a inserção em O(1)
+		vector <int> caminhoTotal; // Vetor de caminho total que será boleano para fazer a inserção em O(1)
 		int veiculo; // Veiculo da solucao
 		int funcao_objetivo;
 		int capacidade;

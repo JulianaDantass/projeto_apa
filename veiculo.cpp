@@ -40,6 +40,7 @@ void Veiculo::setCustoVeiculo(){
 
 	this->funcao_objetivo += custo;
 }
+
 int Veiculo::printaCaminhoTotal(int pontoInicial){
 	int cliente = this->caminhoTotal[pontoInicial];
 	cout << pontoInicial << " -> ";

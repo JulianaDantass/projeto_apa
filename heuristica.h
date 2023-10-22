@@ -18,6 +18,9 @@ class Heuristica{
 		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 
+		//metodos para as estruturas de vizinhanca
+		bool reinsertion();
+
 	private:
 		vector <Veiculo> veiculos;
 		vector <int> clientesTerceirizados;
