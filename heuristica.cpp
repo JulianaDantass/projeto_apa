@@ -393,7 +393,7 @@ bool Heuristica::reinsertion(){
 
 		int ponto_rota = 0;
 		rota.push_back(0);
-		while(1){ //colocando a rota num vector com APENAS os vertices visitidos de fato pelo veiculo
+		while(1){ //colocando a rota num vector com APENAS os vertices visitidos de fato pelo veiculo para analisar os movimentos
 
 			int cliente = (*ptr_rota)[ponto_rota];
 			rota.push_back(cliente);
@@ -404,29 +404,31 @@ bool Heuristica::reinsertion(){
 				ponto_rota = cliente;
 			}
 		}          
+
+		cout << "-----------------Veiculo " << v << " ---------------------------------" << endl;
+		cout << "rota antes do movimento: ";
+		veiculos[v].printaCaminhoTotal(0);
 		
 		double delta, 
 		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
 		int melhor_i, melhor_j;       //vao guardar os indices de melhor troca
 
-
 		for(int i = 1; i < rota.size(); i++){
+			for(int j = 1; j < rota.size()-1; j++){
 
-			for(int j = 1; j < rota.size(); j++){
-
-				if(i == j){
+				if(i == j or i == j+1){
 					continue;
 
 				}else if (i > j){
 
 					delta = -dados->matriz_distancias[rota[j-1]][rota[j]] -dados->matriz_distancias[rota[j]][rota[j+1]] 
 							-dados->matriz_distancias[rota[i]][rota[i+1]] +dados->matriz_distancias[rota[j-1]][rota[j+1]] 
-							+dados->matriz_distancias[rota[i]][rota[j]] +dados->matriz_distancias[rota[j]][rota[i+1]]; 
+							+dados->matriz_distancias[rota[i]][rota[j]] +dados->matriz_distancias[rota[j]][rota[i-1]]; 
 
 				}else if(i == j-1){
 
 					delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[j]][rota[j+1]]
-							+dados->matriz_distancias[rota[i-1]][rota[j]] +dados->matriz_distancias[rota[i]][rota[j+1]];
+							+dados->matriz_distancias[rota[i-1]][rota[j]] +dados->matriz_distancias[rota[j-1]][rota[j+1]];
 
 				}else if(i < j){
 					
@@ -445,11 +447,15 @@ bool Heuristica::reinsertion(){
 		}
 	
 		if (melhor_delta < 0){
+
+			cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
+			getchar();
+
 			if(melhor_i > melhor_j){
 
 				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);      // o antecessor do melhor j vai apontar pro sucessor de j
 				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);           //o melhorj vai apontar pro melhor i
-				veiculos[v].setCliente(rota[melhor_i+1], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i
+				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i
 				
 			}else{
 
@@ -462,6 +468,9 @@ bool Heuristica::reinsertion(){
 			funcaoObjetivo = funcaoObjetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 
 			houve_melhoria_rotas = 1;     //corfirmando se ouve melhoria em alguma rota
+			
+			cout << "rota depois do movimento: ";
+			veiculos[v].printaCaminhoTotal(0);
       	}
 
 	}
