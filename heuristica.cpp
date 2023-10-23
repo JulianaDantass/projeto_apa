@@ -25,12 +25,12 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 /* Calculo responsável por realizar o calculo de um cliente a outro no grafo	*/
 int Heuristica::custoIda(int cliente_anterior, int cliente_atual, int objetivo){
 
-	cout << "Cliente anterior: " << cliente_anterior << endl;
-	cout << "cliente atual: " << cliente_atual << endl;
-	cout << "Custo da aresta: " << dados->matriz_distancias[cliente_anterior][cliente_atual] << endl;
+	//cout << "Cliente anterior: " << cliente_anterior << endl;
+	//cout << "cliente atual: " << cliente_atual << endl;
+	//cout << "Custo da aresta: " << dados->matriz_distancias[cliente_anterior][cliente_atual] << endl;
 
 	int funcaoObjetivo = objetivo + dados->matriz_distancias[cliente_anterior][cliente_atual];
-	cout << "FuncaoObjetivo apos o calculo: " << funcaoObjetivo << endl;	
+	//cout << "FuncaoObjetivo apos o calculo: " << funcaoObjetivo << endl;	
 	return funcaoObjetivo;
 }
 
@@ -182,9 +182,8 @@ void Heuristica::insercaoMaisBarata(){
 		veiculos.push_back(veiculo);
 
 		veiculos[i].setCustoVeiculo();
-		cout << "Custo total apos primeira solucao: " << veiculos[i].getObjetivo() << endl;
-		
-		cout << "Clientes apos a solucao Inicial: ";
+		// cout << "Custo total apos primeira solucao: " << veiculos[i].getObjetivo() << endl;
+		// cout << "Clientes apos a solucao Inicial: ";
 
 		for(int i = 0; i < clientesOrdenados.size(); i++){
 
@@ -218,10 +217,10 @@ void Heuristica::insercaoMaisBarata(){
 			
 			/* Se a demanda do cliente for maior do que a capacidade, então pulamos para o proximo cliente	*/
 			int demanda_cliente = dados->demandas[cliente];
-			cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
+			//cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
 			if(demanda_cliente >  veiculos[i].getCapacidade()){
 				
-				cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
+				//cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
 				continue;
 			}
 			
@@ -268,7 +267,8 @@ void Heuristica::insercaoMaisBarata(){
 			/* Se o custo da terceirização for menor igual a esse custo a gente terceiriza	*/
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente];
 			if(custo_terceirizacao_cliente <= custoDeEntradaCliente and entregasRealizadas >= dados->minimo_entregas){
-				cout << "O cliente tem custo de terceirizacao melhor, pois vale: " << custo_terceirizacao_cliente << endl;
+
+				//cout << "O cliente tem custo de terceirizacao melhor, pois vale: " << custo_terceirizacao_cliente << endl;
 				/* Trocamos de posicao no vetor para conseguir deletar em O(1)	*/
 				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size()  - 1];
 				clientesOrdenados[clientesOrdenados.size() - 1] = clientesOrdenados[v];
@@ -287,15 +287,15 @@ void Heuristica::insercaoMaisBarata(){
 				 veiculos[i].setCliente(cliente, melhorCliente_a); // Seta o pai de melhor_Cliente_a como cliente
 				 veiculos[i].setCliente(melhorCliente_b, cliente); // Seta o pai de cliente como melhorCliente)b
 
-				cout << "O melhor custo foi de: " << melhorCusto << endl;
-				cout << "A insercado do cliente: " << cliente << " entre " << melhorCliente_a << " " << melhorCliente_b << endl;
+				//cout << "O melhor custo foi de: " << melhorCusto << endl;
+				//cout << "A insercado do cliente: " << cliente << " entre " << melhorCliente_a << " " << melhorCliente_b << endl;
 
 				int funcaoObjetivo =  veiculos[i].getObjetivo() + melhorCusto;
 				 veiculos[i].setObjetivo(funcaoObjetivo);
-				cout << "Valor da nova funcao objetivo: " << funcaoObjetivo << endl;
+				//cout << "Valor da nova funcao objetivo: " << funcaoObjetivo << endl;
 				int novaCapacidade =  veiculos[i].getCapacidade() - demanda_cliente;
 				 veiculos[i].setCapacidade(novaCapacidade);
-				cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].getCapacidade() << endl;
+				//cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].getCapacidade() << endl;
 				
 				/* Troca a posicao com o ultimo e da o pop_back	*/
 				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1];
@@ -320,20 +320,20 @@ void Heuristica::insercaoMaisBarata(){
 
 	}
 	
-	 for(int  i = 0; i < veiculos.size(); i++){
+	// for(int  i = 0; i < veiculos.size(); i++){
 		
-	 	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
-	 	cout << "Caminho do veiculo( " << i << "):";	
-	 	veiculos[i].printaCaminhoTotal(0);
-	 	cout << endl;
-	 }
+	//  	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
+	//  	cout << "Caminho do veiculo( " << i << "):";	
+	//  	veiculos[i].printaCaminhoTotal(0);
+	//  	cout << endl;
+	// }
 	
-	 cout << "Clientes terceirizados: ";
-	 for(int i = 0; i < clientesTerceirizados.size(); i++){
+	//  cout << "Clientes terceirizados: ";
+	//  for(int i = 0; i < clientesTerceirizados.size(); i++){
 
-	 	cout << clientesTerceirizados[i] << " ";
-	 }
-	 cout << endl;
+	//  	cout << clientesTerceirizados[i] << " ";
+	//  }
+	// cout << endl;-
 	cout << "Custo total apos o guloso: " << this->funcaoObjetivo << endl;
 	
 	// if(dados->q_clientes == clientesAtendidos)
@@ -352,8 +352,6 @@ void Heuristica::resolve(){
 }
 
 void Heuristica::VND(){
-
-	system("clear");
 
 	int contador = 0; 
 	bool melhorou_solucao = 0;
@@ -405,7 +403,7 @@ bool Heuristica::reinsertion(){
 			}
 		}          
 
-		cout << "-----------------Veiculo " << v << " ---------------------------------" << endl;
+		cout << "\n\nVeiculo " << v << endl;
 		cout << "rota antes do movimento: ";
 		veiculos[v].printaCaminhoTotal(0);
 		
@@ -422,7 +420,7 @@ bool Heuristica::reinsertion(){
 				}else if (i > j){
 
 					delta = -dados->matriz_distancias[rota[j-1]][rota[j]] -dados->matriz_distancias[rota[j]][rota[j+1]] 
-							-dados->matriz_distancias[rota[i]][rota[i+1]] +dados->matriz_distancias[rota[j-1]][rota[j+1]] 
+							-dados->matriz_distancias[rota[i-1]][rota[i]] +dados->matriz_distancias[rota[j-1]][rota[j+1]] 
 							+dados->matriz_distancias[rota[i]][rota[j]] +dados->matriz_distancias[rota[j]][rota[i-1]]; 
 
 				}else if(i == j-1){
@@ -448,20 +446,27 @@ bool Heuristica::reinsertion(){
 	
 		if (melhor_delta < 0){
 
-			cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
-			getchar();
+			// cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
+			// cout << "melhor delta: " << melhor_delta << endl;
 
 			if(melhor_i > melhor_j){
 
 				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);      // o antecessor do melhor j vai apontar pro sucessor de j
 				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);           //o melhorj vai apontar pro melhor i
 				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i
+
+
+				rota.insert(rota.begin() + melhor_i, rota[melhor_j]);                  
+          		rota.erase(rota.begin() + melhor_j);                                   
 				
 			}else{
 
 				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);      
 				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);          
-				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_i]);        
+				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);        
+				
+				rota.insert(rota.begin() + melhor_i, rota[melhor_j]);               
+          		rota.erase(rota.begin() + melhor_j+1);                               
 			}
 			
 			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
@@ -469,14 +474,15 @@ bool Heuristica::reinsertion(){
 
 			houve_melhoria_rotas = 1;     //corfirmando se ouve melhoria em alguma rota
 			
-			cout << "rota depois do movimento: ";
-			veiculos[v].printaCaminhoTotal(0);
+			// cout << "rota depois: ";
+			// veiculos[v].printaCaminhoTotal(0);
       	}
 
 	}
 
 	return houve_melhoria_rotas; //retorna se ouve melhoria para o VND
 }
+
 
 Heuristica::~Heuristica(){
 	

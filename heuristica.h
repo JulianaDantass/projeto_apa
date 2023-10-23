@@ -13,6 +13,7 @@ class Heuristica{
 		Heuristica(Instancia* dados);
 		~Heuristica();
 		void resolve();
+		void printVector(vector<int> vetor);
 		void insercaoMaisBarata();	
 		Veiculo solucaoInicial(int indiceSolucao);
 		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);

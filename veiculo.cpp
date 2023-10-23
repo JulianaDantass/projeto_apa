@@ -29,7 +29,7 @@ void Veiculo::editaParametros(int veiculo, int capacidade, int qClientes, int cu
 void Veiculo::setCliente(int proximo_cliente, int clienteAnterior){
 
 	this->caminhoTotal[clienteAnterior] = proximo_cliente;
-	cout << "Cliente anterior: " << clienteAnterior << " vai para " << proximo_cliente << endl;
+	//cout << "Cliente anterior: " << clienteAnterior << " vai para " << proximo_cliente << endl;
 }
 
 int Veiculo::getProxCliente(int clienteAnterior){
