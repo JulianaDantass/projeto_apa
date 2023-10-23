@@ -21,6 +21,7 @@ class Heuristica{
 
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
+		bool swapEntreRotas();
 
 	private:
 		vector <Veiculo> veiculos;
