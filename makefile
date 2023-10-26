@@ -42,10 +42,10 @@ $(PROJ_NAME): $(OBJ)
 		@ echo ' '
 
 objFolder:
-		@ mkdir -p objects
+		@ mkdir -p objetos
 
 clean:
-		@ $(RM) ./objects/*.o $(PROJ_NAME) *~
-		@ rmdir objects
+		@ $(RM) ./objetos/*.o $(PROJ_NAME) *~
+		@ rmdir objetos
 
 .PHONY: all clean
