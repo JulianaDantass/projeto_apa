@@ -72,16 +72,17 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 		*/
 
 		cout << endl;
+		/*
 		if(entregasRealizadas >= dados->minimo_entregas){
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
 					
 			// Calculo da terceirizao de ida e volta supondo o melhor caso q é direto para garagem	
 			int custoIdaTotal = custoIda(cliente_anterior, cliente_indice, veiculos[indice_veiculo].getObjetivo());// calculo do custo de ida
 				
-			/*
+			
 				Verificamos se estamos inserindo o primeiro cliente
 				* caso sim verificamos se vale a pena pagar o custo do veiculo mais o custo da distancia de ida ao cliente
-				* ate a garagem, caso seja o segundo cliente nao precisamos mais considerar o custo do veiculo pois sabemos que ele será utilizado*/
+				* ate a garagem, caso seja o segundo cliente nao precisamos mais considerar o custo do veiculo pois sabemos que ele será utilizado
 
 			int custoPrimeiroCliente = (inseriu == 0 ? dados->matriz_distancias[cliente_indice][0] + dados->custo_veiculo : dados->matriz_distancias[cliente_indice][0]); 
 			custoIdaTotal += custoPrimeiroCliente;
@@ -91,44 +92,44 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 				cout << "Cliente " << cliente_indice << " foi tercerizado" << endl;
 				clientesTerceirizados.push_back(cliente_indice); // Indica o cliente terceirizado
 				this->funcaoObjetivo += custo_terceirizacao_cliente; // Adiciona a terceirizacao
-				/*Excluir o cliente gerado */
-				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1]; //Armazena o ultimo cliente
-				clientesOrdenados[clientesOrdenados.size() - 1] = cliente_indice; // O cliente escolhido aleatoriamente vai para a posicao final
-				clientesOrdenados[n] = ultimo_cliente; // Atualiza a posicao atual com o ultimo cliente
-				clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
-				/* Fim da eliminacao do cliente */
+				Excluir o cliente gerado */
+				//int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1]; //Armazena o ultimo cliente
+				//clientesOrdenados[clientesOrdenados.size() - 1] = cliente_indice; // O cliente escolhido aleatoriamente vai para a posicao final
+				//clientesOrdenados[n] = ultimo_cliente; // Atualiza a posicao atual com o ultimo cliente
+				//clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
+				/* Fim da eliminacao do cliente 
 				clientesAtendidos++; // Diz que o cliente foi atendido
 			}
 		}
-		else{	
+		*/
 				
-			cout << "here" << endl;
-			/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
-			int demanda_cliente = dados->demandas[cliente_indice]; 
-			int capacidade = veiculo.getCapacidade();
-			if(demanda_cliente <= capacidade){
-					
-				int novaCapacidade = capacidade - demanda_cliente;
-					
-				funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, veiculo.getObjetivo());
+		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 
-				veiculo.setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
-				veiculo.setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
-				veiculo.setCapacidade(novaCapacidade);  // Seta nova capacidade
-				entregasRealizadas++; // Armaneza quantas entregas ja foi realizada
-				/*Excluir o cliente gerado */
-				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1]; //Armazena o ultimo cliente
-				clientesOrdenados[clientesOrdenados.size() - 1] = cliente_indice; // O cliente escolhido aleatoriamente vai para a posicao final
-				clientesOrdenados[n] = ultimo_cliente; // Atualiza a posicao atual com o ultimo cliente
-				clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
-				/* Fim da eliminacao do cliente */
-				clientesAtendidos++;
-				inseriu++;
-				cliente_anterior = cliente_indice;
+		int demanda_cliente = dados->demandas[cliente_indice]; 
+		int capacidade = veiculo.getCapacidade();
+		if(demanda_cliente <= capacidade){
 					
-			}
-			
+			int novaCapacidade = capacidade - demanda_cliente;
+					
+			funcaoObjetivo = custoIda(cliente_anterior, cliente_indice, veiculo.getObjetivo());
+
+			veiculo.setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
+			veiculo.setObjetivo(funcaoObjetivo);     // Seta a nova funcao objetivo
+			veiculo.setCapacidade(novaCapacidade);  // Seta nova capacidade
+			entregasRealizadas++; // Armaneza quantas entregas ja foi realizada
+			/*Excluir o cliente gerado */
+			int ultimo_cliente = clientesOrdenados[clientesOrdenados.size() - 1]; //Armazena o ultimo cliente
+			clientesOrdenados[clientesOrdenados.size() - 1] = cliente_indice; // O cliente escolhido aleatoriamente vai para a posicao final
+			clientesOrdenados[n] = ultimo_cliente; // Atualiza a posicao atual com o ultimo cliente
+			clientesOrdenados.pop_back(); // Retira o cliente, pois ja foi alocado
+			/* Fim da eliminacao do cliente */
+			clientesAtendidos++;
+			inseriu++;
+			cliente_anterior = cliente_indice;
+					
 		}
+			
+		
 		/*
 		cout << "Clientes apos escolha: ";
 		for(int  i = 0; i < clientesOrdenados.size(); i++){
@@ -260,15 +261,16 @@ void Heuristica::insercaoMaisBarata(){
 			/* Calculo do custo real do cliente
 			 * que é ir do melhorCLiente_A até o cliente atual +
 			 * ir do cliente atual ate o melhorCliente_b
-			 * se esse calculo for maior ou igual ao custo de terceirizar
-			 * iremos calaramente terceirizar*/
-			int custoDeEntradaCliente = melhorCusto + dados->matriz_distancias[melhorCliente_a][melhorCliente_b];
-			
+			 * se esse calculo for maior que o  custo de terceirizar
+			 * iremos calaramente terceirizar
+			 */
+
+			//int custoDeEntradaCliente = melhorCusto + dados->matriz_distancias[melhorCliente_a][melhorCliente_b];
 			/* Se o custo da terceirização for menor igual a esse custo a gente terceiriza	*/
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente];
-			if(custo_terceirizacao_cliente <= custoDeEntradaCliente and entregasRealizadas >= dados->minimo_entregas){
+			if(custo_terceirizacao_cliente < melhorCusto and entregasRealizadas >= dados->minimo_entregas){
 
-				//cout << "O cliente tem custo de terceirizacao melhor, pois vale: " << custo_terceirizacao_cliente << endl;
+				cout << "O cliente tem custo de terceirizacao melhor, pois vale: " << custo_terceirizacao_cliente << endl;
 				/* Trocamos de posicao no vetor para conseguir deletar em O(1)	*/
 				int ultimo_cliente = clientesOrdenados[clientesOrdenados.size()  - 1];
 				clientesOrdenados[clientesOrdenados.size() - 1] = clientesOrdenados[v];
@@ -320,20 +322,31 @@ void Heuristica::insercaoMaisBarata(){
 
 	}
 	
-	// for(int  i = 0; i < veiculos.size(); i++){
-		
-	//  	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
-	//  	cout << "Caminho do veiculo( " << i << "):";	
-	//  	veiculos[i].printaCaminhoTotal(0);
-	//  	cout << endl;
-	// }
+	cout << "Sobraram os clientes: " << clientesOrdenados.size() << endl;
 	
-	//  cout << "Clientes terceirizados: ";
-	//  for(int i = 0; i < clientesTerceirizados.size(); i++){
+	/* Caso sobre algum cliente, devemos terceirizar pois todos os veiculos estão preenchidos	*/
+	for(int  i = 0; i < clientesOrdenados.size(); i++){
+		int indice_cliente = clientesOrdenados[i];
+		clientesTerceirizados.push_back(indice_cliente);
+		this->funcaoObjetivo += dados->custo_terceirizacao[indice_cliente];
+	}
 
-	//  	cout << clientesTerceirizados[i] << " ";
-	//  }
-	// cout << endl;-
+
+	for(int  i = 0; i < veiculos.size(); i++){
+		
+	  	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
+	  	cout << "Caminho do veiculo( " << i << "):";	
+	  	veiculos[i].printaCaminhoTotal(0);
+	  	cout << endl;
+    }
+	
+	  cout << "Clientes terceirizados: ";
+	  for(int i = 0; i < clientesTerceirizados.size(); i++){
+
+	  	cout << clientesTerceirizados[i] << " ";
+	  }
+	cout << endl;
+
 	cout << "Custo total apos o guloso: " << this->funcaoObjetivo << endl;
 	
 	// if(dados->q_clientes == clientesAtendidos)
@@ -347,8 +360,8 @@ void Heuristica::resolve(){
 	insercaoMaisBarata();	
 	VND();
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
-	long long microsecond = std::chrono::duration_cast<std::chrono::microseconds>(resultado).count();
-	cout << "Tempo(ms): " << microsecond << endl;
+	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
+	cout << "Tempo(ms): " << millisecond << endl;
 }
 
 void Heuristica::VND(){
