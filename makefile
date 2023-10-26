@@ -8,7 +8,7 @@ CPP_SOURCE=$(wildcard ./source/*.cpp)
 H_SOURCE=$(wildcard ./source/*.h)
 
 # Object files
-OBJ=$(subst .cpp,.o,$(subst source,objects,$(CPP_SOURCE)))
+OBJ=$(subst .cpp,.o,$(subst source,objetos,$(CPP_SOURCE)))
 
 # Compiler and linker
 CC=g++
@@ -31,12 +31,12 @@ $(PROJ_NAME): $(OBJ)
 		@ echo 'Finished building binary: $@'
 		@ echo ' '
 
-./objects/%.o: ./source/%.cpp ./source/%.h
+./objetos/%.o: ./source/%.cpp ./source/%.h
 		@ echo 'Building target using G++ compiler: $<'
 		$(CC) $< $(CC_FLAGS) -o $@
 		@ echo ' '
 
-./objects/main.o: ./source/main.cpp $(H_SOURCE)
+./objetos/main.o: ./source/main.cpp $(H_SOURCE)
 		@ echo 'Building target using G++ compiler: $<'
 		$(CC) $< $(CC_FLAGS) -o $@
 		@ echo ' '
