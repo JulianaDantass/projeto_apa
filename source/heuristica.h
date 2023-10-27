@@ -20,8 +20,9 @@ class Heuristica{
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
 		bool swapEntreRotas();
-		bool terceirizacao();
 		bool crossover();
+		bool terceirizacao();
+		bool desterceirizacao();
 
 		void printVector(vector<int> vetor); //deve ser eliminado
 

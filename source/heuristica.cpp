@@ -544,10 +544,6 @@ bool Heuristica::terceirizacao(){
 				ponto_rota = cliente;
 			}
 		}          
-
-		cout << "\n\nVeiculo " << v << endl;
-		cout << "rota antes do movimento: ";
-		veiculos[v].printaCaminhoTotal(0);
 		
 		double delta, 
 		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
@@ -557,7 +553,7 @@ bool Heuristica::terceirizacao(){
 		for(int i = 1; i < rota.size()-2; i++){
 
 			delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[i]][rota[i+1]]
-					+dados->matriz_distancias[rota[i-1]][rota[i+1]] + dados->custo_terceirizacao[i];
+					+dados->matriz_distancias[rota[i-1]][rota[i+1]] + dados->custo_terceirizacao[rota[i]];
 
 
 			if (delta < melhor_delta){ // se delta for menor que o melhor delta atual significa que melhorou a solucao
@@ -570,27 +566,93 @@ bool Heuristica::terceirizacao(){
 
 		if (melhor_delta < 0){
 
-			cout << "melhor delta : " << melhor_delta << " ";
-			cout << "mellhor i: " << melhor_i << endl;
-
 			veiculos[v].setCliente(rota[melhor_i+1], rota[melhor_i-1]); 
 			veiculos[v].setCliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
+			clientesTerceirizados.push_back(rota[melhor_i]);            //adicionando o cliente na lsita de terceirizados
 			
-			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
+			veiculos[v].setCapacidade(veiculos[v].getCapacidade() + dados->demandas[rota[melhor_i]]);
+			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta - dados->custo_terceirizacao[rota[melhor_i]]);  //atualizando a funcao objetivo do veiculo
 			funcaoObjetivo = funcaoObjetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 
-
 			houve_melhoria_rotas = 1;
-			cout << "rota depois: ";
-			veiculos[v].printaCaminhoTotal(0);
       	}
-
-
-
 	}
 
 	return houve_melhoria_rotas;
 }
+
+
+bool Heuristica::desterceirizacao(){
+
+	bool houve_melhoria_rotas = 0;
+
+	if(clientesTerceirizados.size() == 0){       //se nao tiver nenhum cliente a ser desterceirizado
+		return houve_melhoria_rotas;                
+	}
+
+	for(int v = 0; v < veiculos.size(); v++){
+
+		std::vector<int> rota;
+		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+
+		int ponto_rota = 0;
+		rota.push_back(0);
+		while(1){ //colocando a rota num vector com APENAS os vertices visitidos de fato pelo veiculo para analisar os movimentos
+
+			int cliente = (*ptr_rota)[ponto_rota];
+			rota.push_back(cliente);
+
+			if (cliente == 0){
+				break;
+			}else{
+				ponto_rota = cliente;
+			}
+		}          
+		
+		double delta, 
+		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
+		int melhor_i, melhor_j;    //vao guardar os indices do melhor cliente a ser desterceirizado e a posicao que deve ser inserido na rota
+
+		for(int i = 0; i < clientesTerceirizados.size(); i++){
+
+			if(veiculos[v].getCapacidade() >= dados->demandas[clientesTerceirizados[i]]){  
+
+				for(int j = 1; j < rota.size(); j++){    //vendo a melhor posicao pra o cliente ser inserido na rota
+
+					delta = -dados->custo_terceirizacao[clientesTerceirizados[i]] -dados->matriz_distancias[rota[j-1]][rota[j]]
+							+dados->matriz_distancias[rota[j-1]][clientesTerceirizados[i]] 
+							+dados->matriz_distancias[clientesTerceirizados[i]][rota[j]];
+
+
+					if (delta < melhor_delta){ // se delta for menor que o melhor delta atual significa que melhorou a solucao
+						melhor_delta = delta;  //atualiza o delta pra uma nova comparacao
+						melhor_i = i;          
+						melhor_j = j;
+
+					}
+				}
+			}
+		}
+
+		if (melhor_delta < 0){
+
+			veiculos[v].setCliente(clientesTerceirizados[melhor_i], rota[melhor_j-1]);
+			veiculos[v].setCliente(rota[melhor_j], clientesTerceirizados[melhor_i]);
+			veiculos[v].setCapacidade(veiculos[v].getCapacidade() - dados->demandas[clientesTerceirizados[melhor_i]]);  //atualizando a capacidade
+
+			swap(clientesTerceirizados[melhor_i], clientesTerceirizados[clientesTerceirizados.size()-1]);  //dando swap para retirar cliente em O(1)
+			clientesTerceirizados.pop_back();        //retirando o cliente
+			
+			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta + dados->custo_terceirizacao[clientesTerceirizados[melhor_i]]);  //atualizando a funcao objetivo do veiculo
+			funcaoObjetivo = funcaoObjetivo + melhor_delta;                       //atualizando a funcao objetivo geral
+			
+			houve_melhoria_rotas = 1;
+      	}
+	}
+
+	return houve_melhoria_rotas;
+}
+	
 
 bool Heuristica::crossover(){
 	bool houve_melhoria_rotas = 0;
