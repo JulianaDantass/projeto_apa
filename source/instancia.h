@@ -23,7 +23,7 @@ class Instancia{
 
     public: 
         Instancia();
-        void lerInstancia(string caminho_instancia);
+        int lerInstancia(string caminho_instancia);
         void exibir();
 };
 

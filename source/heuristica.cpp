@@ -361,7 +361,8 @@ void Heuristica::resolve(){
 	VND();
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
 	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
-	cout << "Tempo(ms): " << millisecond << endl;
+	cout << "Solucao: " << funcaoObjetivo << endl;
+	cout << "Tempo(s): " << millisecond/1000.0 << endl;
 }
 
 void Heuristica::VND(){
@@ -375,15 +376,17 @@ void Heuristica::VND(){
 				melhorou_solucao = reinsertion();
 				break;
 			case 1: 
-				//reinsertion();
+				// melhorou_solucao = swapEntreRotas();
 				break;
 			case 2:
-				//swap_entre_rotas();
+				melhorou_solucao = terceirizacao();
 				break;
 		}
 
 		if(melhorou_solucao){            //se a vizinhanca melhorar a solucao
 			contador = 0;
+			melhorou_solucao = 0;
+			cout << "*********************************";
 
 		}else{
 			contador++;
@@ -568,6 +571,76 @@ bool Heuristica::swapEntreRotas(){
 	return houve_melhoria_rotas;
 }
 
+bool Heuristica::terceirizacao(){
+
+	bool houve_melhoria_rotas = 0;
+
+	for(int v = 0; v < veiculos.size(); v++){
+
+		std::vector<int> rota;
+		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+
+
+		int ponto_rota = 0;
+		rota.push_back(0);
+		while(1){ //colocando a rota num vector com APENAS os vertices visitidos de fato pelo veiculo para analisar os movimentos
+
+			int cliente = (*ptr_rota)[ponto_rota];
+			rota.push_back(cliente);
+
+			if (cliente == 0){
+				break;
+			}else{
+				ponto_rota = cliente;
+			}
+		}          
+
+		cout << "\n\nVeiculo " << v << endl;
+		cout << "rota antes do movimento: ";
+		veiculos[v].printaCaminhoTotal(0);
+		
+		double delta, 
+		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
+		int melhor_i;       	  //vao guardar os indices do melhor cliente a ser terceirizado em cada rota
+
+
+		for(int i = 1; i < rota.size()-2; i++){
+
+			delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[i]][rota[i+1]]
+					+dados->matriz_distancias[rota[i-1]][rota[i+1]] + dados->custo_terceirizacao[i];
+
+
+			if (delta < melhor_delta){ // se delta for menor que o melhor delta atual significa que melhorou a solucao
+
+				
+				melhor_delta = delta;  //atualiza o delta pra uma nova comparacao
+				melhor_i = i;          //guarda o indice i da melhor troca
+			}
+		}
+
+		if (melhor_delta < 0){
+
+			cout << "melhor delta : " << melhor_delta << " ";
+			cout << "mellhor i: " << melhor_i << endl;
+
+			veiculos[v].setCliente(rota[melhor_i+1], rota[melhor_i-1]); 
+			veiculos[v].setCliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
+			
+			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
+			funcaoObjetivo = funcaoObjetivo + melhor_delta;                       //atualizando a funcao objetivo geral
+
+
+			houve_melhoria_rotas = 1;
+			cout << "rota depois: ";
+			veiculos[v].printaCaminhoTotal(0);
+      	}
+
+
+
+	}
+
+	return houve_melhoria_rotas;
+}
 
 Heuristica::~Heuristica(){
 	

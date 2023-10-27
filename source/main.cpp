@@ -22,11 +22,16 @@ int main(int argc, char** argv){
 
         string filename = string(argv[1]);
 
-        dados.lerInstancia(filename);
+        int retorno = dados.lerInstancia(filename);
 
-        Heuristica heuristica(&dados);
-        //dados.exibir(); 
-		heuristica.resolve();
+        if(retorno != -1){
+
+            Heuristica heuristica(&dados);
+            //dados.exibir(); 
+            heuristica.resolve();
+        }
+
+        
 
     }
     
