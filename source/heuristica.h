@@ -21,6 +21,7 @@ class Heuristica{
 		bool reinsertion();
 		bool swapEntreRotas();
 		bool terceirizacao();
+		bool crossover();
 
 		void printVector(vector<int> vetor); //deve ser eliminado
 
