@@ -466,8 +466,8 @@ bool Heuristica::swapEntreRotas(){
 			for (int k = 1; k < rotas[i].size()-1; k++)
 			{
 				for(int l = 1; l< rotas[j].size()-1; l++){
-					if(veiculos[i].getCapacidade() - dados->demandas[rotas[i][k]] + dados->demandas[rotas[j][l]] < dados->capacidade && 
-					veiculos[j].getCapacidade() - dados->demandas[rotas[j][l]] + dados->demandas[rotas[i][k]] < dados->capacidade){ //verifica se a troca não excede a capacidade dos veiculos
+					if(veiculos[i].getCapacidade() + dados->demandas[rotas[i][k]] - dados->demandas[rotas[j][l]] >= 0 && 
+					veiculos[j].getCapacidade() + dados->demandas[rotas[j][l]] - dados->demandas[rotas[i][k]] >= 0){ //verifica se a troca não excede a capacidade dos veiculos
 						delta = -dados->matriz_distancias[rotas[i][k-1]][rotas[i][k]] -dados->matriz_distancias[rotas[i][k]][rotas[i][k+1]] 
 							-dados->matriz_distancias[rotas[j][l-1]][rotas[j][l]] -dados->matriz_distancias[rotas[j][l]][rotas[j][l+1]] 
 							+dados->matriz_distancias[rotas[i][k-1]][rotas[j][l]] +dados->matriz_distancias[rotas[j][l]][rotas[i][k+1]] 
@@ -504,9 +504,10 @@ bool Heuristica::swapEntreRotas(){
 			veiculos[melhor_j].setCliente(rotas[melhor_j][melhor_l+1], rotas[melhor_j][melhor_l]); //substitui os clientes visitados de cada veiculo
 			veiculos[melhor_i].setObjetivo(veiculos[melhor_i].getObjetivo() + delta_i);
 			veiculos[melhor_j].setObjetivo(veiculos[melhor_j].getObjetivo() + delta_j); //seta o novo valor da funcao objetivo de cada veiculo
-			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() - dados->demandas[rotas[melhor_i][melhor_k]] + dados->demandas[rotas[melhor_j][melhor_l]]); 
-			veiculos[melhor_l].setCapacidade(veiculos[melhor_l].getCapacidade() - dados->demandas[rotas[melhor_j][melhor_l]]
-												+ dados->demandas[rotas[melhor_i][melhor_k]]); //seta as novas capacidades de cada veiculo
+			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() + dados->demandas[rotas[melhor_i][melhor_k]] - dados->demandas[rotas[melhor_j][melhor_l]]); 
+			veiculos[melhor_l].setCapacidade(veiculos[melhor_l].getCapacidade() + dados->demandas[rotas[melhor_j][melhor_l]]
+												- dados->demandas[rotas[melhor_i][melhor_k]]); //seta as novas capacidades de cada veiculo
+
 			funcaoObjetivo = funcaoObjetivo + melhor_delta; // atualiza a funcao objetivo geral
 
 
@@ -635,8 +636,8 @@ bool Heuristica::crossover(){
 		for (int j = i+1; j < rotas.size(); j++)
 		{
 			indice_meio_j = rotas[j].size() / 2;
-			if(veiculos[i].getCapacidade() - demanda_parcial[i] + demanda_parcial[j] <= dados->capacidade &&
-			   veiculos[j].getCapacidade() - demanda_parcial[j] + demanda_parcial[i] <= dados->capacidade){//verifica se a troca não excede a capacidade dos veiculos
+			if(veiculos[i].getCapacidade() + demanda_parcial[i] - demanda_parcial[j] >= 0 &&
+			   veiculos[j].getCapacidade() + demanda_parcial[j] - demanda_parcial[i] >= 0){//verifica se a troca não excede a capacidade dos veiculos
 				delta = -dados->matriz_distancias [rotas[i][indice_meio_i-1]] [rotas[i][indice_meio_i]]
 						-dados->matriz_distancias [rotas[j][indice_meio_j-1]] [rotas[j][indice_meio_j]]
 						+dados->matriz_distancias [rotas[i][indice_meio_i-1]] [rotas[j][indice_meio_j]]
@@ -698,8 +699,8 @@ bool Heuristica::crossover(){
 			veiculos[melhor_i].setObjetivo(veiculos[melhor_i].getObjetivo() + delta_i);
 			veiculos[melhor_j].setObjetivo(veiculos[melhor_j].getObjetivo() + delta_j);
 
-			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() - demanda_parcial[melhor_i] + demanda_parcial[melhor_j]);
-			veiculos[melhor_j].setCapacidade(veiculos[melhor_j].getCapacidade() - demanda_parcial[melhor_j] + demanda_parcial[melhor_i]);
+			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() + demanda_parcial[melhor_i] - demanda_parcial[melhor_j]);
+			veiculos[melhor_j].setCapacidade(veiculos[melhor_j].getCapacidade() + demanda_parcial[melhor_j] - demanda_parcial[melhor_i]);
 
 			funcaoObjetivo = funcaoObjetivo + melhor_delta;
 			houve_melhoria_rotas = 1;
