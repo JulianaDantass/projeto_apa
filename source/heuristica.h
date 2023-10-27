@@ -15,7 +15,6 @@ class Heuristica{
 		void resolve();
 		void insercaoMaisBarata();	
 		Veiculo solucaoInicial(int indiceSolucao);
-		int custoIda(int cliente_anterior, int cliente_atual, int objetivo);
 		void VND();
 
 		//metodos para as estruturas de vizinhanca
@@ -29,7 +28,7 @@ class Heuristica{
 		vector <Veiculo> veiculos;
 		vector <int> clientesTerceirizados;
 		int clientesAtendidos;
-		vector <int> clientesOrdenados;
+		vector <int> clientesDisponiveis;
 		int entregasRealizadas;
 		Instancia *dados;
 		int funcaoObjetivo;

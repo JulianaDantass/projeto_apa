@@ -7,6 +7,7 @@ Veiculo::Veiculo(){
 	this->capacidade = -1;
 	this->custo = -1;
 	this->funcao_objetivo = 0;
+	this->qtd_clientes = 0;
 }
 
 void Veiculo::editaParametros(int veiculo, int capacidade, int qClientes, int custoVeiculo){
@@ -32,6 +33,14 @@ void Veiculo::setCliente(int proximo_cliente, int clienteAnterior){
 	//cout << "Cliente anterior: " << clienteAnterior << " vai para " << proximo_cliente << endl;
 }
 
+void Veiculo::incrementa_clientes(){
+	this->qtd_clientes++;
+}
+
+int Veiculo::get_quantia_clientes(){
+
+	return this->qtd_clientes;
+}
 int Veiculo::getProxCliente(int clienteAnterior){
 
 	return this->caminhoTotal[clienteAnterior];
