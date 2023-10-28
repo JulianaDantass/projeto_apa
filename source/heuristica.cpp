@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define QTD_VIZINHANCAS 3
+#define QTD_VIZINHANCAS 5
 #define QTD_PERTURBACAO 3
 #define ILS_EXECUCOES 10
 
@@ -33,10 +33,10 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 
 	Veiculo veiculo;
 
-	veiculo.editaParametros(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
+	veiculo.edita_parametros(indice_veiculo, dados->capacidade, dados->q_clientes, dados->custo_veiculo);
 
 
-	veiculo.setCliente(0, 0); // Começa a rota 0->0
+	veiculo.set_cliente(0, 0); // Começa a rota 0->0
 	int inseriu = 0;
 	int funcao_objetivo = 0;
 	int cliente_anterior = 0;
@@ -59,15 +59,15 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 
 		int demanda_cliente = dados->demandas[cliente_indice]; 
-		int capacidade = veiculo.getCapacidade();
+		int capacidade = veiculo.get_capacidade_disp();
 		if(demanda_cliente <= capacidade){
 					
 			int novaCapacidade = capacidade - demanda_cliente;
 					
-			funcao_objetivo = veiculo.getObjetivo() + dados->matriz_distancias[cliente_anterior][cliente_indice];
-			veiculo.setCliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
-			veiculo.setObjetivo(funcao_objetivo);     // Seta a nova funcao objetivo
-			veiculo.setCapacidade(novaCapacidade);  // Seta nova capacidade
+			funcao_objetivo = veiculo.get_objetivo() + dados->matriz_distancias[cliente_anterior][cliente_indice];
+			veiculo.set_cliente(cliente_indice, cliente_anterior); // Seta o cliente como sendo o proximo na rota
+			veiculo.set_objetivo(funcao_objetivo);     // Seta a nova funcao objetivo
+			veiculo.set_capacidade_disp(novaCapacidade);  // Seta nova capacidade
 			entregas_realizadas++; // Armaneza quantas entregas ja foi realizada
 			/*Excluir o cliente gerado */
 			swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
@@ -85,12 +85,12 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 	
 	
 	
-	cout << "Capacidade do veiculo após solucao inicial: " << veiculo.getCapacidade() << endl;
+	cout << "Capacidade do veiculo após solucao inicial: " << veiculo.get_capacidade_disp() << endl;
 	
 	
-	funcao_objetivo = veiculo.getObjetivo() + dados->matriz_distancias[cliente_anterior][0];
-	veiculo.setCliente(0, cliente_anterior);
-	veiculo.setObjetivo(funcao_objetivo);
+	funcao_objetivo = veiculo.get_objetivo() + dados->matriz_distancias[cliente_anterior][0];
+	veiculo.set_cliente(0, cliente_anterior);
+	veiculo.set_objetivo(funcao_objetivo);
 	
 	return veiculo;
 	
@@ -118,15 +118,15 @@ void Heuristica::insercaoMaisBarata(){
 		
 		/* Quer dizer que nao foi construido uma solucao inicial para o veiculo
 		 * seja porque a terceirizacao foi melhor */
-		 if(veiculo.getProxCliente(0) == 0){
+		 if(veiculo.get_prox_cliente(0) == 0){
 		 	continue;
 		 }
 		
 		veiculos.push_back(veiculo);  
-		veiculos[i].setCustoVeiculo(); //Seta o custo do veiculo na função objetivo dele
+		veiculos[i].adiciona_custo_veiculo(); //Seta o custo do veiculo na função objetivo dele
  
 	  
-		veiculos[i].printaCaminhoTotal(0);
+		veiculos[i].printa_caminho_total(0);
 		
 		/* O loop começa do ultimo cliente no vetor
 		 * Se houver capacidade para aquele cliente
@@ -139,7 +139,7 @@ void Heuristica::insercaoMaisBarata(){
 		for(int v = clientes_disponiveis.size() - 1; v >= 0; v--){
 			
 			/* Se o veiculo não tiver capacidade, paramos o codigo	*/
-			if( veiculos[i].getCapacidade() <= 0)
+			if( veiculos[i].get_capacidade_disp() <= 0)
 				break;
 
 			int cliente = clientes_disponiveis[v];
@@ -152,7 +152,7 @@ void Heuristica::insercaoMaisBarata(){
 			/* Se a demanda do cliente for maior do que a capacidade, então pulamos para o proximo cliente	*/
 			int demanda_cliente = dados->demandas[cliente];
 			//cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
-			if(demanda_cliente >  veiculos[i].getCapacidade()){
+			if(demanda_cliente >  veiculos[i].get_capacidade_disp()){
 				
 				//cout << "Nao eh possivel testar o cliente: " << cliente << " pois sua demanda eh maior do que a capacidade" << endl;
 				continue;
@@ -164,7 +164,7 @@ void Heuristica::insercaoMaisBarata(){
 			 * Começamos  o cliente A sendo zero que é a garagem
 			 * o caminho está como uma árvore logo vetor[a] = b, então 
 			 * o nó a possui o nó b como pai, paramos quando o pai for a garagem que vale zero*/
-			vector < int> *caminhoTotal = veiculos[i].getCaminhoTotal();
+			vector < int> *caminhoTotal = veiculos[i].get_caminho_total();
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
 			int custo = 0;
@@ -218,18 +218,18 @@ void Heuristica::insercaoMaisBarata(){
 
 			if(inseriu){
 				cout << "-------------------------------Iniciando Insercao---------------------------------" << endl;
-				veiculos[i].setCliente(cliente, melhorCliente_a); // Seta o pai de melhor_Cliente_a como cliente
-				veiculos[i].setCliente(melhorCliente_b, cliente); // Seta o pai de cliente como melhorCliente)b
+				veiculos[i].set_cliente(cliente, melhorCliente_a); // Seta o pai de melhor_Cliente_a como cliente
+				veiculos[i].set_cliente(melhorCliente_b, cliente); // Seta o pai de cliente como melhorCliente)b
 
 				//cout << "O melhor custo foi de: " << melhorCusto << endl;
 				//cout << "A insercado do cliente: " << cliente << " entre " << melhorCliente_a << " " << melhorCliente_b << endl;
 
-				int funcao_objetivo =  veiculos[i].getObjetivo() + melhorCusto;
-				veiculos[i].setObjetivo(funcao_objetivo);
+				int funcao_objetivo =  veiculos[i].get_objetivo() + melhorCusto;
+				veiculos[i].set_objetivo(funcao_objetivo);
 				//cout << "Valor da nova funcao objetivo: " << funcao_objetivo << endl;
-				int novaCapacidade =  veiculos[i].getCapacidade() - demanda_cliente;
-				veiculos[i].setCapacidade(novaCapacidade);
-				//cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].getCapacidade() << endl;
+				int novaCapacidade =  veiculos[i].get_capacidade_disp() - demanda_cliente;
+				veiculos[i].set_capacidade_disp(novaCapacidade);
+				//cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].get_capacidade_disp() << endl;
 
 				/* Troca a posicao com o ultimo e da o pop_back	*/
 				swap(clientes_disponiveis[v], clientes_disponiveis[clientes_disponiveis.size() - 1]);
@@ -237,7 +237,7 @@ void Heuristica::insercaoMaisBarata(){
 
 				entregas_realizadas++;
 				cout << "Novo caminho: ";
-				veiculos[i].printaCaminhoTotal(0);
+				veiculos[i].printa_caminho_total(0);
 				cout << endl;
 				clientesAtendidos++;
 				veiculos[i].incrementa_clientes();
@@ -245,9 +245,9 @@ void Heuristica::insercaoMaisBarata(){
 			//	getchar();
 			}
 		}
-		veiculos[i].printaCaminhoTotal(0);
+		veiculos[i].printa_caminho_total(0);
 		cout << endl;
-		this->funcao_objetivo +=  veiculos[i].getObjetivo();
+		this->funcao_objetivo +=  veiculos[i].get_objetivo();
 
 	//	getchar();
 
@@ -263,25 +263,25 @@ void Heuristica::insercaoMaisBarata(){
 	}
 
 
-	for(int  i = 0; i < veiculos.size(); i++){
+	// for(int  i = 0; i < veiculos.size(); i++){
 		
-	  	cout << "Objetivo do veiculo: " << veiculos[i].getObjetivo() << endl;
-	  	cout << "Caminho do veiculo( " << i << "):";
-	  	veiculos[i].printaCaminhoTotal(0);
+	//   	cout << "Objetivo do veiculo: " << veiculos[i].get_objetivo() << endl;
+	//   	cout << "Caminho do veiculo( " << i << "):";
+	//   	veiculos[i].printa_caminho_total(0);
 
-	  	cout << endl;
-		cout << "Quantia de clientes atendidos pelo veiculo: " << veiculos[i].get_quantia_clientes() << endl;
-		cout << "Capacidade atual do veiculo: " << veiculos[i].getCapacidade() << endl;
-    }
+	//   	cout << endl;
+	// 	cout << "Quantia de clientes atendidos pelo veiculo: " << veiculos[i].get_quantia_clientes() << endl;
+	// 	cout << "Capacidade atual do veiculo: " << veiculos[i].get_capacidade_disp() << endl;
+    // }
 	
-	  cout << "Clientes terceirizados: ";
-	  for(int i = 0; i < clientes_terceirizados.size(); i++){
+	//   cout << "Clientes terceirizados: ";
+	//   for(int i = 0; i < clientes_terceirizados.size(); i++){
 
-	  	cout << clientes_terceirizados[i] << " ";
-	  }
-	cout << endl;
+	//   	cout << clientes_terceirizados[i] << " ";
+	//   }
+	// cout << endl;
 
-	cout << "Custo total apos o guloso: " << this->funcao_objetivo << endl;
+	// cout << "Custo total apos o guloso: " << this->funcao_objetivo << endl;
 	
 }
 
@@ -325,13 +325,16 @@ void Heuristica::VND(){
 				// melhorou_solucao = reinsertion();
 				break;
 			case 1: 
-				melhorou_solucao = swapEntreRotas();
+				//melhorou_solucao = swapEntreRotas();
 				break;
 			case 2:
 				// melhorou_solucao = terceirizacao();
 				break;
 			case 3:
 				// melhorou_solucao = crossover();
+				break;
+			case 4:
+				// melhorou_solucao = desterceirizacao();
 				break;
 		}
 
@@ -353,7 +356,7 @@ bool Heuristica::reinsertion(){
 	for(int v = 0; v < veiculos.size(); v++){
 
 		std::vector<int> rota;
-		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+		std::vector<int> *ptr_rota = veiculos[v].get_caminho_total();
 
 
 		int ponto_rota = 0;
@@ -369,10 +372,6 @@ bool Heuristica::reinsertion(){
 				ponto_rota = cliente;
 			}
 		}          
-
-		cout << "\n\nVeiculo " << v << endl;
-		cout << "rota antes do movimento: ";
-		veiculos[v].printaCaminhoTotal(0);
 		
 		double delta, 
 		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
@@ -418,31 +417,25 @@ bool Heuristica::reinsertion(){
 
 			if(melhor_i > melhor_j){
 
-				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);      // o antecessor do melhor j vai apontar pro sucessor de j
-				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);           //o melhorj vai apontar pro melhor i
-				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i
-
-
-				rota.insert(rota.begin() + melhor_i, rota[melhor_j]);                  
-          		rota.erase(rota.begin() + melhor_j);                                   
+				veiculos[v].set_cliente(rota[melhor_j+1], rota[melhor_j-1]);      // o antecessor do melhor j vai apontar pro sucessor de j
+				veiculos[v].set_cliente(rota[melhor_j], rota[melhor_i-1]);           //o melhorj vai apontar pro melhor i
+				veiculos[v].set_cliente(rota[melhor_i], rota[melhor_j]);         //o melhor j vai apntar pro sucessor de i                                  
 				
 			}else{
 
-				veiculos[v].setCliente(rota[melhor_j], rota[melhor_i-1]);      
-				veiculos[v].setCliente(rota[melhor_i], rota[melhor_j]);          
-				veiculos[v].setCliente(rota[melhor_j+1], rota[melhor_j-1]);        
-				
-				rota.insert(rota.begin() + melhor_i, rota[melhor_j]);               
-          		rota.erase(rota.begin() + melhor_j+1);                               
+				veiculos[v].set_cliente(rota[melhor_j], rota[melhor_i-1]);      
+				veiculos[v].set_cliente(rota[melhor_i], rota[melhor_j]);          
+				veiculos[v].set_cliente(rota[melhor_j+1], rota[melhor_j-1]);        
+				                           
 			}
 			
-			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
+			veiculos[v].set_objetivo( veiculos[v].get_objetivo() + melhor_delta );  //atualizando a funcao objetivo do veiculo
 			funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 
-			houve_melhoria_rotas = 1;     //corfirmando se ouve melhoria em alguma rota
+			houve_melhoria_rotas = 1;     //corfirmando que houve melhoria em alguma rota
 			
 			// cout << "rota depois: ";
-			// veiculos[v].printaCaminhoTotal(0);
+			// veiculos[v].printa_caminho_total(0);
       	}
 
 	}
@@ -451,12 +444,12 @@ bool Heuristica::reinsertion(){
 }
 
 bool Heuristica::swapEntreRotas(){
-	bool houve_melhoria_rotas = false;
+	bool houve_melhoria_rotas = 0;
 
 	std::vector<vector<int>> rotas; //vector de vector que vai guardar as rotas de cada veiculo
 	for (int i = 0; i < veiculos.size(); i++)
 	{
-		std::vector<int> *ptr_rota = veiculos[i].getCaminhoTotal();
+		std::vector<int> *ptr_rota = veiculos[i].get_caminho_total();
 		std::vector<int> rota;
 
 		int ponto_rota = 0;
@@ -485,8 +478,8 @@ bool Heuristica::swapEntreRotas(){
 			for (int k = 1; k < rotas[i].size()-1; k++)
 			{
 				for(int l = 1; l< rotas[j].size()-1; l++){
-					if(veiculos[i].getCapacidade() + dados->demandas[rotas[i][k]] - dados->demandas[rotas[j][l]] >= 0 && 
-					veiculos[j].getCapacidade() + dados->demandas[rotas[j][l]] - dados->demandas[rotas[i][k]] >= 0){ //verifica se a troca não excede a capacidade dos veiculos
+					if(veiculos[i].get_capacidade_disp() + dados->demandas[rotas[i][k]] - dados->demandas[rotas[j][l]] >= 0 && 
+					veiculos[j].get_capacidade_disp() + dados->demandas[rotas[j][l]] - dados->demandas[rotas[i][k]] >= 0){ //verifica se a troca não excede a capacidade dos veiculos
 						delta = -dados->matriz_distancias[rotas[i][k-1]][rotas[i][k]] -dados->matriz_distancias[rotas[i][k]][rotas[i][k+1]] 
 							-dados->matriz_distancias[rotas[j][l-1]][rotas[j][l]] -dados->matriz_distancias[rotas[j][l]][rotas[j][l+1]] 
 							+dados->matriz_distancias[rotas[i][k-1]][rotas[j][l]] +dados->matriz_distancias[rotas[j][l]][rotas[i][k+1]] 
@@ -517,20 +510,20 @@ bool Heuristica::swapEntreRotas(){
 			rotas[melhor_i][melhor_k] = rotas[melhor_j][melhor_l];
 			rotas[melhor_j][melhor_l] = aux; //faz a troca dos clientes entre as rotas
 
-			veiculos[melhor_i].setCliente(rotas[melhor_i][melhor_k], rotas[melhor_i][melhor_k-1]);
-			veiculos[melhor_i].setCliente(rotas[melhor_i][melhor_k+1], rotas[melhor_i][melhor_k]);
-			veiculos[melhor_j].setCliente(rotas[melhor_j][melhor_l], rotas[melhor_j][melhor_l-1]);
-			veiculos[melhor_j].setCliente(rotas[melhor_j][melhor_l+1], rotas[melhor_j][melhor_l]); //substitui os clientes visitados de cada veiculo
-			veiculos[melhor_i].setObjetivo(veiculos[melhor_i].getObjetivo() + delta_i);
-			veiculos[melhor_j].setObjetivo(veiculos[melhor_j].getObjetivo() + delta_j); //seta o novo valor da funcao objetivo de cada veiculo
-			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() + dados->demandas[rotas[melhor_i][melhor_k]] - dados->demandas[rotas[melhor_j][melhor_l]]); 
-			veiculos[melhor_l].setCapacidade(veiculos[melhor_l].getCapacidade() + dados->demandas[rotas[melhor_j][melhor_l]]
+			veiculos[melhor_i].set_cliente(rotas[melhor_i][melhor_k], rotas[melhor_i][melhor_k-1]);
+			veiculos[melhor_i].set_cliente(rotas[melhor_i][melhor_k+1], rotas[melhor_i][melhor_k]);
+			veiculos[melhor_j].set_cliente(rotas[melhor_j][melhor_l], rotas[melhor_j][melhor_l-1]);
+			veiculos[melhor_j].set_cliente(rotas[melhor_j][melhor_l+1], rotas[melhor_j][melhor_l]); //substitui os clientes visitados de cada veiculo
+			veiculos[melhor_i].set_objetivo(veiculos[melhor_i].get_objetivo() + delta_i);
+			veiculos[melhor_j].set_objetivo(veiculos[melhor_j].get_objetivo() + delta_j); //seta o novo valor da funcao objetivo de cada veiculo
+			veiculos[melhor_i].set_capacidade_disp(veiculos[melhor_i].get_capacidade_disp() + dados->demandas[rotas[melhor_i][melhor_k]] - dados->demandas[rotas[melhor_j][melhor_l]]); 
+			veiculos[melhor_l].set_capacidade_disp(veiculos[melhor_l].get_capacidade_disp() + dados->demandas[rotas[melhor_j][melhor_l]]
 												- dados->demandas[rotas[melhor_i][melhor_k]]); //seta as novas capacidades de cada veiculo
 
 			funcao_objetivo = funcao_objetivo + melhor_delta; // atualiza a funcao objetivo geral
 
 
-			houve_melhoria_rotas = true;
+			houve_melhoria_rotas = 1;
 		}
 	}
 
@@ -547,7 +540,7 @@ bool Heuristica::terceirizacao(){
 	for(int v = 0; v < veiculos.size(); v++){
 
 		std::vector<int> rota;
-		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+		std::vector<int> *ptr_rota = veiculos[v].get_caminho_total();
 
 
 		int ponto_rota = 0;
@@ -585,12 +578,12 @@ bool Heuristica::terceirizacao(){
 
 		if (melhor_delta < 0){
 
-			veiculos[v].setCliente(rota[melhor_i+1], rota[melhor_i-1]); 
-			veiculos[v].setCliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
+			veiculos[v].set_cliente(rota[melhor_i+1], rota[melhor_i-1]); 
+			veiculos[v].set_cliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
 			clientes_terceirizados.push_back(rota[melhor_i]);            //adicionando o cliente na lsita de terceirizados
 			
-			veiculos[v].setCapacidade(veiculos[v].getCapacidade() + dados->demandas[rota[melhor_i]]);
-			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta - dados->custo_terceirizacao[rota[melhor_i]]);  //atualizando a funcao objetivo do veiculo
+			veiculos[v].set_capacidade_disp(veiculos[v].get_capacidade_disp() + dados->demandas[rota[melhor_i]]);
+			veiculos[v].set_objetivo( veiculos[v].get_objetivo() + melhor_delta - dados->custo_terceirizacao[rota[melhor_i]]);  //atualizando a funcao objetivo do veiculo
 			funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 
 			houve_melhoria_rotas = 1;
@@ -612,7 +605,7 @@ bool Heuristica::desterceirizacao(){
 	for(int v = 0; v < veiculos.size(); v++){
 
 		std::vector<int> rota;
-		std::vector<int> *ptr_rota = veiculos[v].getCaminhoTotal();
+		std::vector<int> *ptr_rota = veiculos[v].get_caminho_total();
 
 		int ponto_rota = 0;
 		rota.push_back(0);
@@ -634,7 +627,7 @@ bool Heuristica::desterceirizacao(){
 
 		for(int i = 0; i < clientes_terceirizados.size(); i++){
 
-			if(veiculos[v].getCapacidade() >= dados->demandas[clientes_terceirizados[i]]){  
+			if(veiculos[v].get_capacidade_disp() >= dados->demandas[clientes_terceirizados[i]]){  
 
 				for(int j = 1; j < rota.size(); j++){    //vendo a melhor posicao pra o cliente ser inserido na rota
 
@@ -655,14 +648,14 @@ bool Heuristica::desterceirizacao(){
 
 		if (melhor_delta < 0){
 
-			veiculos[v].setCliente(clientes_terceirizados[melhor_i], rota[melhor_j-1]);
-			veiculos[v].setCliente(rota[melhor_j], clientes_terceirizados[melhor_i]);
-			veiculos[v].setCapacidade(veiculos[v].getCapacidade() - dados->demandas[clientes_terceirizados[melhor_i]]);  //atualizando a capacidade
+			veiculos[v].set_cliente(clientes_terceirizados[melhor_i], rota[melhor_j-1]);
+			veiculos[v].set_cliente(rota[melhor_j], clientes_terceirizados[melhor_i]);
+			veiculos[v].set_capacidade_disp(veiculos[v].get_capacidade_disp() - dados->demandas[clientes_terceirizados[melhor_i]]);  //atualizando a capacidade
 
 			swap(clientes_terceirizados[melhor_i], clientes_terceirizados[clientes_terceirizados.size()-1]);  //dando swap para retirar cliente em O(1)
 			clientes_terceirizados.pop_back();        //retirando o cliente
 			
-			veiculos[v].setObjetivo( veiculos[v].getObjetivo() + melhor_delta + dados->custo_terceirizacao[clientes_terceirizados[melhor_i]]);  //atualizando a funcao objetivo do veiculo
+			veiculos[v].set_objetivo( veiculos[v].get_objetivo() + melhor_delta + dados->custo_terceirizacao[clientes_terceirizados[melhor_i]]);  //atualizando a funcao objetivo do veiculo
 			funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 			
 			houve_melhoria_rotas = 1;
@@ -680,7 +673,7 @@ bool Heuristica::crossover(){
 	vector<int> demanda_parcial;
 	for (int i = 0; i < veiculos.size(); i++)
 	{
-		vector<int> *ptr_rota = veiculos[i].getCaminhoTotal();
+		vector<int> *ptr_rota = veiculos[i].get_caminho_total();
 		vector<int> rota;
 
 		int ponto_atual = 0;
@@ -717,8 +710,8 @@ bool Heuristica::crossover(){
 		for (int j = i+1; j < rotas.size(); j++)
 		{
 			indice_meio_j = rotas[j].size() / 2;
-			if(veiculos[i].getCapacidade() + demanda_parcial[i] - demanda_parcial[j] >= 0 &&
-			   veiculos[j].getCapacidade() + demanda_parcial[j] - demanda_parcial[i] >= 0){//verifica se a troca não excede a capacidade dos veiculos
+			if(veiculos[i].get_capacidade_disp() + demanda_parcial[i] - demanda_parcial[j] >= 0 &&
+			   veiculos[j].get_capacidade_disp() + demanda_parcial[j] - demanda_parcial[i] >= 0){//verifica se a troca não excede a capacidade dos veiculos
 				delta = -dados->matriz_distancias [rotas[i][indice_meio_i-1]] [rotas[i][indice_meio_i]]
 						-dados->matriz_distancias [rotas[j][indice_meio_j-1]] [rotas[j][indice_meio_j]]
 						+dados->matriz_distancias [rotas[i][indice_meio_i-1]] [rotas[j][indice_meio_j]]
@@ -762,12 +755,12 @@ bool Heuristica::crossover(){
 
 			for (int o = 1; o < rotas[melhor_i].size(); o++)
 			{
-				veiculos[melhor_i].setCliente(rotas[melhor_i][o], rotas[melhor_i][o-1]);
+				veiculos[melhor_i].set_cliente(rotas[melhor_i][o], rotas[melhor_i][o-1]);
 			}
 			
 			for (int p = 1; p < rotas[melhor_j].size(); p++)
 			{
-				veiculos[melhor_j].setCliente(rotas[melhor_j][p], rotas[melhor_j][p-1]);
+				veiculos[melhor_j].set_cliente(rotas[melhor_j][p], rotas[melhor_j][p-1]);
 			}
 
 			int delta_i, delta_j;
@@ -777,11 +770,11 @@ bool Heuristica::crossover(){
 			delta_j = -dados->matriz_distancias [rotas[melhor_j][indice_meio_j-1]] [rotas[melhor_j][indice_meio_j]]
 						+dados->matriz_distancias [rotas[melhor_j][indice_meio_j-1]] [rotas[melhor_i][indice_meio_i]];
 
-			veiculos[melhor_i].setObjetivo(veiculos[melhor_i].getObjetivo() + delta_i);
-			veiculos[melhor_j].setObjetivo(veiculos[melhor_j].getObjetivo() + delta_j);
+			veiculos[melhor_i].set_objetivo(veiculos[melhor_i].get_objetivo() + delta_i);
+			veiculos[melhor_j].set_objetivo(veiculos[melhor_j].get_objetivo() + delta_j);
 
-			veiculos[melhor_i].setCapacidade(veiculos[melhor_i].getCapacidade() + demanda_parcial[melhor_i] - demanda_parcial[melhor_j]);
-			veiculos[melhor_j].setCapacidade(veiculos[melhor_j].getCapacidade() + demanda_parcial[melhor_j] - demanda_parcial[melhor_i]);
+			veiculos[melhor_i].set_capacidade_disp(veiculos[melhor_i].get_capacidade_disp() + demanda_parcial[melhor_i] - demanda_parcial[melhor_j]);
+			veiculos[melhor_j].set_capacidade_disp(veiculos[melhor_j].get_capacidade_disp() + demanda_parcial[melhor_j] - demanda_parcial[melhor_i]);
 
 			funcao_objetivo = funcao_objetivo + melhor_delta;
 			houve_melhoria_rotas = 1;
@@ -822,7 +815,7 @@ void Heuristica::perturbacao(){
 			if(criou_rotas == 0){
 
 				clientes_i.push_back(cliente_anterior_i);
-				int cliente_atual_i = veiculos[indice_primeiro_veiculo].getProxCliente(cliente_anterior_i);
+				int cliente_atual_i = veiculos[indice_primeiro_veiculo].get_prox_cliente(cliente_anterior_i);
 					
 				if(cliente_atual_i == 0){
 					criou_rotas++;
@@ -833,7 +826,7 @@ void Heuristica::perturbacao(){
 			}
 			else{
 				clientes_j.push_back(cliente_anterior_j);
-				int cliente_atual_j = veiculos[indice_segundo_veiculo].getProxCliente(cliente_anterior_j);
+				int cliente_atual_j = veiculos[indice_segundo_veiculo].get_prox_cliente(cliente_anterior_j);
 				if(cliente_atual_j == 0){
 
 					criou_rotas++;
@@ -865,62 +858,62 @@ void Heuristica::perturbacao(){
 			/* indices que terão seu proximo cliente alterado, caso o veiculo possua capacidade*/
 			int i =  rand() % clientes_i.size();
 			int j =  rand() % clientes_j.size();
-			int prox_cliente_i = veiculos[indice_primeiro_veiculo].getProxCliente(clientes_i[i]);
-			int prox_cliente_j = veiculos[indice_segundo_veiculo].getProxCliente(clientes_j[j]);
+			int prox_cliente_i = veiculos[indice_primeiro_veiculo].get_prox_cliente(clientes_i[i]);
+			int prox_cliente_j = veiculos[indice_segundo_veiculo].get_prox_cliente(clientes_j[j]);
 			
 			cout << "Sera realiza o swap entre: " << prox_cliente_i << " e " << prox_cliente_j << endl;
-			int prox_final_i = veiculos[indice_primeiro_veiculo].getProxCliente(prox_cliente_i);
-			int prox_final_j = veiculos[indice_segundo_veiculo].getProxCliente(prox_cliente_j);
+			int prox_final_i = veiculos[indice_primeiro_veiculo].get_prox_cliente(prox_cliente_i);
+			int prox_final_j = veiculos[indice_segundo_veiculo].get_prox_cliente(prox_cliente_j);
 			/* A nova capacidade dos veiculos será determinada por
 			 * vamos retirar a capacidade do cliente anterior e adicionar a capacidade do novo cliente
 			 * caso esse calculo seja maior ou igual a zero é porque podemos adicionar o cliente*/
-			int nova_capacidade_i = veiculos[indice_primeiro_veiculo].getCapacidade() + dados->demandas[prox_cliente_i]
+			int nova_capacidade_i = veiculos[indice_primeiro_veiculo].get_capacidade_disp() + dados->demandas[prox_cliente_i]
 				- dados->demandas[prox_cliente_j];
-			int nova_capacidade_j = veiculos[indice_segundo_veiculo].getCapacidade()
+			int nova_capacidade_j = veiculos[indice_segundo_veiculo].get_capacidade_disp()
 				+ dados->demandas[prox_cliente_j] - dados->demandas[prox_cliente_i];
 		
 			/* Vamos adicionar o prox_cliente_j em prox_cliente_i	*/
 
 			if(nova_capacidade_i >= 0 and nova_capacidade_j >= 0){
-				veiculos[indice_primeiro_veiculo].setCliente(prox_cliente_j, clientes_i[i]);
-				veiculos[indice_primeiro_veiculo].setCliente(prox_final_i, prox_cliente_j);
-				int funcao_objetivo = veiculos[indice_primeiro_veiculo].getObjetivo() - dados->matriz_distancias[clientes_i[i]][prox_cliente_i]
+				veiculos[indice_primeiro_veiculo].set_cliente(prox_cliente_j, clientes_i[i]);
+				veiculos[indice_primeiro_veiculo].set_cliente(prox_final_i, prox_cliente_j);
+				int funcao_objetivo = veiculos[indice_primeiro_veiculo].get_objetivo() - dados->matriz_distancias[clientes_i[i]][prox_cliente_i]
 					- dados->matriz_distancias[prox_cliente_i][prox_final_i] + dados->matriz_distancias[clientes_i[i]][prox_cliente_j]
 					+ dados->matriz_distancias[prox_cliente_j][prox_final_i];
 			
 
-				this->funcao_objetivo = this->funcao_objetivo - veiculos[indice_primeiro_veiculo].getObjetivo()
+				this->funcao_objetivo = this->funcao_objetivo - veiculos[indice_primeiro_veiculo].get_objetivo()
 					+ funcao_objetivo;
-				veiculos[indice_primeiro_veiculo].setObjetivo(funcao_objetivo);
+				veiculos[indice_primeiro_veiculo].set_objetivo(funcao_objetivo);
 
 
 				cout << "Capacidade nova do veiculo i: " << nova_capacidade_i << endl;
 				cout << "Capacidade nova do veiculo j: " << nova_capacidade_j << endl;
 
-				veiculos[indice_segundo_veiculo].setCliente(prox_cliente_i, clientes_j[j]);
-				veiculos[indice_segundo_veiculo].setCliente(prox_final_j, prox_cliente_i);
-				funcao_objetivo = veiculos[indice_segundo_veiculo].getObjetivo() - dados->matriz_distancias[clientes_j[j]][prox_cliente_j]
+				veiculos[indice_segundo_veiculo].set_cliente(prox_cliente_i, clientes_j[j]);
+				veiculos[indice_segundo_veiculo].set_cliente(prox_final_j, prox_cliente_i);
+				funcao_objetivo = veiculos[indice_segundo_veiculo].get_objetivo() - dados->matriz_distancias[clientes_j[j]][prox_cliente_j]
 					- dados->matriz_distancias[prox_cliente_j][prox_final_j] + dados->matriz_distancias[clientes_j[j]][prox_cliente_i]
 					+ dados->matriz_distancias[prox_cliente_i][prox_final_j];
 
-				this->funcao_objetivo = this->funcao_objetivo - veiculos[indice_segundo_veiculo].getObjetivo()
+				this->funcao_objetivo = this->funcao_objetivo - veiculos[indice_segundo_veiculo].get_objetivo()
 						+ funcao_objetivo;
-				veiculos[indice_segundo_veiculo].setObjetivo(funcao_objetivo);
+				veiculos[indice_segundo_veiculo].set_objetivo(funcao_objetivo);
 
-				veiculos[indice_primeiro_veiculo].setCapacidade(nova_capacidade_i);
-				veiculos[indice_segundo_veiculo].setCapacidade(nova_capacidade_j);
-				cout << "Nova objetivo veiculo i: " << veiculos[indice_primeiro_veiculo].getObjetivo() << endl;
-				cout << "Nova objetivo veiculo j: " << veiculos[indice_segundo_veiculo].getObjetivo() << endl;
+				veiculos[indice_primeiro_veiculo].set_capacidade_disp(nova_capacidade_i);
+				veiculos[indice_segundo_veiculo].set_capacidade_disp(nova_capacidade_j);
+				cout << "Nova objetivo veiculo i: " << veiculos[indice_primeiro_veiculo].get_objetivo() << endl;
+				cout << "Nova objetivo veiculo j: " << veiculos[indice_segundo_veiculo].get_objetivo() << endl;
 				break;
 			}
 
 			operacao_realizada++;
 		}
 		cout << "Rota i apos perturbacao: ";
-		veiculos[indice_primeiro_veiculo].printaCaminhoTotal(0);
+		veiculos[indice_primeiro_veiculo].printa_caminho_total(0);
 		cout << endl;
 		cout << "Rota j apos perturbacao: ";
-		veiculos[indice_segundo_veiculo].printaCaminhoTotal(0);
+		veiculos[indice_segundo_veiculo].printa_caminho_total(0);
 		perturbacoes_realizadas++;
 		//getchar();
 	}
@@ -929,9 +922,9 @@ void Heuristica::perturbacao(){
 	/*
 	for(int i = 0; i < veiculos.size(); i++){
 
-		cout << "Funcao Objetivo do veiculo i: " << veiculos[i].getObjetivo() << endl;
+		cout << "Funcao Objetivo do veiculo i: " << veiculos[i].get_objetivo() << endl;
 		cout << "Caminho do veiculo i: ";
-		veiculos[i].printaCaminhoTotal(0);
+		veiculos[i].printa_caminho_total(0);
 	}
 	
 	cout << endl;
