@@ -19,7 +19,6 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	this->dados = dados_atuais;
 	this->entregas_realizadas = 0;
 	this->funcao_objetivo = 0;
-	this->clientesAtendidos = 0;
 	this->melhor_solucao.funcao_objetivo = INT_MAX; // Inicializa como infinito
 
 	for(int i = 1; i < (dados->q_clientes) + 1; i++){
@@ -320,6 +319,18 @@ void Heuristica::ILS(){
 			cout << "Atualizou a melhor solucao" << endl;
 		}
 		cout << "Funcao Objetivo apos VND: " << this->melhor_solucao.funcao_objetivo << endl;
+		
+		for(int i = 0; i < veiculos.size(); i++){
+			cout << "Caminho do veiculo( " << i << "): ";
+			veiculos[i].printa_caminho_total(0);
+		}
+		
+		cout << "Clientes terceirizados: ";
+		for(int i = 0; i < clientes_terceirizados.size(); i++){
+			
+			cout << clientes_terceirizados[i] << " ";
+		}
+		cout << endl;
 		// getchar();
 	}
 
@@ -849,6 +860,7 @@ void Heuristica::perturbacao(){
 	int perturbacoes_realizadas = 0;
 	cout << "entrou na perturbacao" << endl;
 	while(perturbacoes_realizadas < QTD_PERTURBACAO){
+		
 		if(veiculos.size() == 1)
 			break;
 		int indice_primeiro_veiculo = rand() % veiculos.size(); // Primeiro veiculo aleatorio
