@@ -18,6 +18,9 @@ class Veiculo{
 						
 		int get_quantia_clientes();
 		void incrementa_clientes();
+		void set_quantia_clientes(int qtd_clientes);
+		void decrementa_clientes();
+
 		int printaCaminhoTotal(int cliente);
 		vector <int> *getCaminhoTotal(){return &this->caminhoTotal;};
 		void setCustoVeiculo();

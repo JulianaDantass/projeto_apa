@@ -39,12 +39,12 @@ class Heuristica{
 
 		vector <Veiculo> best_veiculos;
 
-		vector <int> clientesTerceirizados;
+		vector <int> clientes_terceirizados;
 		int clientesAtendidos;
-		vector <int> clientesDisponiveis;
-		int entregasRealizadas;
+		vector <int> clientes_disponiveis;
+		int entregas_realizadas;
 		Instancia *dados;
-		int funcaoObjetivo;
+		int funcao_objetivo;
 		int best_objetivo;
 		Solucao melhor_solucao;
 };

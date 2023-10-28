@@ -37,6 +37,14 @@ void Veiculo::incrementa_clientes(){
 	this->qtd_clientes++;
 }
 
+void Veiculo::decrementa_clientes(){
+	this->qtd_clientes--;
+}
+
+void Veiculo::set_quantia_clientes(int qtd_clientes){
+
+	this->qtd_clientes = qtd_clientes;
+}
 int Veiculo::get_quantia_clientes(){
 
 	return this->qtd_clientes;
