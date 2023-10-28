@@ -36,7 +36,6 @@ class Heuristica{
 	private:
 		vector <Veiculo> veiculos;
 		vector <int> clientes_terceirizados;
-		int clientesAtendidos;
 		vector <int> clientes_disponiveis;
 		int entregas_realizadas;
 		Instancia *dados;
