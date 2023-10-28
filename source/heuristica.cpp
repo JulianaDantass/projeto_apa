@@ -224,7 +224,6 @@ void Heuristica::insercaoMaisBarata(){
 				clientes_disponiveis.pop_back();
 				this->funcao_objetivo += custo_terceirizacao_cliente;
 				clientes_terceirizados.push_back(cliente);
-				clientesAtendidos++;
 				continue;
 
 			}
@@ -265,6 +264,7 @@ void Heuristica::insercaoMaisBarata(){
 
 	}
 	
+	cout << "Foram realizadas a quantia de entregas: " << entregas_realizadas << endl;
 	cout << "Sobraram os clientes: " << clientes_disponiveis.size() << endl;
 	
 	/* Caso sobre algum cliente, devemos terceirizar pois todos os veiculos estão preenchidos	*/
@@ -340,12 +340,15 @@ void Heuristica::VND(){
 			case 0:
 				cout << "entrou aqui" << endl;
 				melhorou_solucao = reinsertion();
+				cout << "saiu do reinsertion" << endl;
 				break;
 			case 1: 
 				melhorou_solucao = swapEntreRotas();
 				break;
 			case 2:
+				cout << "entrou terceirizacao" << endl;
 				melhorou_solucao = terceirizacao();
+				cout << "saiu terceirizao" << endl;
 				break;
 			case 3:
 				melhorou_solucao = crossover();
@@ -429,8 +432,8 @@ bool Heuristica::reinsertion(){
 	
 		if (melhor_delta < 0){
 
-			// cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
-			// cout << "melhor delta: " << melhor_delta << endl;
+			 cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
+			 cout << "melhor delta: " << melhor_delta << endl;
 
 			if(melhor_i > melhor_j){
 
@@ -450,7 +453,7 @@ bool Heuristica::reinsertion(){
 			funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
 
 			houve_melhoria_rotas = 1;     //corfirmando que houve melhoria em alguma rota
-			
+			getchar();
 			// cout << "rota depois: ";
 			// veiculos[v].printa_caminho_total(0);
       	}
@@ -558,7 +561,10 @@ bool Heuristica::swapEntreRotas(){
 }
 
 bool Heuristica::terceirizacao(){
-
+	
+	if(dados->minimo_entregas <= entregas_realizadas)
+		return 0;
+	
 	bool houve_melhoria_rotas = 0;
 	vector<int> indice_v_retirados;       //vai guardar os indices dos veiculos a serem retirados
 
@@ -607,6 +613,8 @@ bool Heuristica::terceirizacao(){
 		}
 
 		if (melhor_delta < 0){
+			
+			entregas_realizadas--;
 
 			clientes_terceirizados.push_back(rota[melhor_i]);        //adicionando o cliente na lsita de terceirizados
 
@@ -689,7 +697,8 @@ bool Heuristica::desterceirizacao(){
 		}
 
 		if (melhor_delta < 0){
-
+			
+			entregas_realizadas++;
 			veiculos[v].set_cliente(clientes_terceirizados[melhor_i], rota[melhor_j-1]);
 			veiculos[v].set_cliente(rota[melhor_j], clientes_terceirizados[melhor_i]);
 			veiculos[v].set_capacidade_disp(veiculos[v].get_capacidade_disp() - dados->demandas[clientes_terceirizados[melhor_i]]);  //atualizando a capacidade
