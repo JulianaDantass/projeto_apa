@@ -57,7 +57,22 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 		int cliente_indice = clientes_disponiveis[n]; // Retira um cliente aleatorio
 				
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
+		
+		
+		if(entregas_realizadas >= dados->minimo_entregas){
+			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente_indice];
+			int custoIda = 2 * dados->matriz_distancias[cliente_indice][0];
 
+			if(custo_terceirizacao_cliente <= custoIda){
+				clientes_terceirizados.push_back(cliente_indice);
+				this->funcao_objetivo += custo_terceirizacao_cliente;
+				swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
+				clientes_disponiveis.pop_back();
+				continue;
+
+			}
+		}
+		
 		int demanda_cliente = dados->demandas[cliente_indice]; 
 		int capacidade = veiculo.get_capacidade_disp();
 		if(demanda_cliente <= capacidade){
@@ -73,7 +88,6 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 			swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
 			clientes_disponiveis.pop_back();
 			/* Fim da eliminacao do cliente */
-			clientesAtendidos++;
 			inseriu++;
 			cliente_anterior = cliente_indice;
 			veiculo.incrementa_clientes();
@@ -200,7 +214,6 @@ void Heuristica::insercaoMaisBarata(){
 			 * iremos calaramente terceirizar
 			 */
 
-			//int custoDeEntradaCliente = melhorCusto + dados->matriz_distancias[melhorCliente_a][melhorCliente_b];
 			/* Se o custo da terceirização for menor igual a esse custo a gente terceiriza	*/
 			int custo_terceirizacao_cliente = dados->custo_terceirizacao[cliente];
 			if(custo_terceirizacao_cliente < melhorCusto and entregas_realizadas >= dados->minimo_entregas){
@@ -239,7 +252,6 @@ void Heuristica::insercaoMaisBarata(){
 				cout << "Novo caminho: ";
 				veiculos[i].printa_caminho_total(0);
 				cout << endl;
-				clientesAtendidos++;
 				veiculos[i].incrementa_clientes();
 				cout << "-------------------------------Fim Insercao--------------------------------------" << endl;
 			//	getchar();
@@ -282,7 +294,8 @@ void Heuristica::insercaoMaisBarata(){
 	 cout << endl;
 
 	 cout << "Custo total apos o guloso: " << this->funcao_objetivo << endl;
-	cout << "saiu do guloso" << endl;	
+	cout << "saiu do guloso" << endl;
+	getchar();
 }
 
 void Heuristica::ILS(){
@@ -296,14 +309,16 @@ void Heuristica::ILS(){
 	/* Vamos executar o ILS 10 vezes	*/
 	for(int i = 0; i < ILS_EXECUCOES; i++) {
 		
+		perturbacao();
+		cout << "here" << endl;
+		VND();
+
 		if(this->funcao_objetivo < this->melhor_solucao.funcao_objetivo){
 			this->melhor_solucao.veiculos = this->veiculos;
 			this->melhor_solucao.clientes_terceirizados = this->clientes_terceirizados;
 			this->melhor_solucao.funcao_objetivo = this->funcao_objetivo;
+			cout << "Atualizou a melhor solucao" << endl;
 		}
-		perturbacao();
-		cout << "here" << endl;
-		VND();
 		cout << "Funcao Objetivo apos VND: " << this->melhor_solucao.funcao_objetivo << endl;
 		// getchar();
 	}
@@ -311,7 +326,7 @@ void Heuristica::ILS(){
 
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
 	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
-	cout << "Solucao: " << funcao_objetivo << endl;
+	cout << "Solucao: " << this->melhor_solucao.funcao_objetivo << endl;
 	cout << "Tempo(s): " << millisecond/1000.0 << endl;
 }
 
@@ -323,6 +338,7 @@ void Heuristica::VND(){
 
 		switch(contador){
 			case 0:
+				cout << "entrou aqui" << endl;
 				melhorou_solucao = reinsertion();
 				break;
 			case 1: 
@@ -445,6 +461,9 @@ bool Heuristica::reinsertion(){
 }
 
 bool Heuristica::swapEntreRotas(){
+	
+	if(veiculos.size() == 1)
+		return 0;
 
 	bool houve_melhoria_rotas = 0;
 	std::vector<vector<int>> rotas; //vector de vector que vai guardar as rotas de cada veiculo
@@ -691,6 +710,9 @@ bool Heuristica::desterceirizacao(){
 
 bool Heuristica::crossover(){
 	bool houve_melhoria_rotas = 0;
+	
+	if(veiculos.size() == 1)
+		return 0;
 
 	std::vector<vector<int>> rotas; //vector de vector que vai guardar as rotas de cada veiculo
 	vector<int> demanda_parcial;
