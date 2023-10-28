@@ -31,7 +31,7 @@ class Veiculo{
 		int veiculo; // Veiculo da solucao
 		int funcao_objetivo;
 		int capacidade_disponivel;
-		int custo;
+		int custo_veiculo;
 		int qtd_clientes;
 
 };

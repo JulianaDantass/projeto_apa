@@ -6,7 +6,7 @@ Veiculo::Veiculo(){
 
 	this->veiculo = -1;
 	this->capacidade_disponivel = -1;
-	this->custo = -1;
+	this->custo_veiculo = -1;
 	this->funcao_objetivo = 0;
 	this->qtd_clientes = 0;
 }
@@ -15,7 +15,7 @@ void Veiculo::edita_parametros(int veiculo, int capacidade_disponivel, int qClie
 
 	this->veiculo = veiculo;
 	this->capacidade_disponivel = capacidade_disponivel;
-	this->custo = custoVeiculo;
+	this->custo_veiculo = custoVeiculo;
 	this->funcao_objetivo = 0;
 	//O vetor caminhoTotal vai indicar o caminho percorrido pelo veiculo
 	//Como iniciamos da garagem caminhoTotal[0] = 1 por exemplo indica que
@@ -61,11 +61,11 @@ int Veiculo::get_prox_cliente(int cliente_anterior){
 
 void Veiculo::adiciona_custo_veiculo(){
 
-	this->funcao_objetivo += custo;
+	this->funcao_objetivo += custo_veiculo;
 }
 
 int Veiculo::printa_caminho_total(int ponto_inicial){
-	
+
 	int cliente = this->caminho_total[ponto_inicial];
 	cout << ponto_inicial << " -> ";
 
