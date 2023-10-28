@@ -540,11 +540,12 @@ bool Heuristica::swapEntreRotas(){
 bool Heuristica::terceirizacao(){
 
 	bool houve_melhoria_rotas = 0;
+	vector<int> indice_v_retirados;       //vai guardar os indices dos veiculos a serem retirados
 
 	for(int v = 0; v < veiculos.size(); v++){
 
-		std::vector<int> rota;
-		std::vector<int> *ptr_rota = veiculos[v].get_caminho_total();
+		vector<int> rota;
+		vector<int> *ptr_rota = veiculos[v].get_caminho_total();
 
 
 		int ponto_rota = 0;
@@ -565,16 +566,21 @@ bool Heuristica::terceirizacao(){
 		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
 		int melhor_i;       	  //vao guardar os indices do melhor cliente a ser terceirizado em cada rota
 
+		veiculos[v].printa_caminho_total(0);
 
-		for(int i = 1; i < rota.size()-2; i++){
+		for(int i = 1; i < rota.size()-1; i++){
 
 			delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[i]][rota[i+1]]
 					+dados->matriz_distancias[rota[i-1]][rota[i+1]] + dados->custo_terceirizacao[rota[i]];
 
+			if(rota.size() == 3){   //so existe 1 cliente no veiculo entao se terceirizar, o veiculo deixa de existir
+				delta = -dados->matriz_distancias[rota[i-1]][rota[i]] -dados->matriz_distancias[rota[i]][rota[i+1]]
+					    -dados->custo_veiculo + dados->custo_terceirizacao[rota[i]];
+			}
+
 
 			if (delta < melhor_delta){ // se delta for menor que o melhor delta atual significa que melhorou a solucao
 
-				
 				melhor_delta = delta;  //atualiza o delta pra uma nova comparacao
 				melhor_i = i;          //guarda o indice i da melhor troca
 			}
@@ -582,17 +588,29 @@ bool Heuristica::terceirizacao(){
 
 		if (melhor_delta < 0){
 
-			veiculos[v].set_cliente(rota[melhor_i+1], rota[melhor_i-1]); 
-			veiculos[v].set_cliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
-			clientes_terceirizados.push_back(rota[melhor_i]);            //adicionando o cliente na lsita de terceirizados
+			clientes_terceirizados.push_back(rota[melhor_i]);        //adicionando o cliente na lsita de terceirizados
+
+			if(rota.size() == 3){
+				indice_v_retirados.push_back(v);
+				funcao_objetivo = funcao_objetivo + melhor_delta;
+			}else{
+
+				veiculos[v].set_cliente(rota[melhor_i+1], rota[melhor_i-1]); 
+				veiculos[v].set_cliente(-1, rota[melhor_i]);            	 	//o cliente que foi terceirizado, volta a apontar para -1
 			
-			veiculos[v].set_capacidade_disp(veiculos[v].get_capacidade_disp() + dados->demandas[rota[melhor_i]]);
-			veiculos[v].set_objetivo( veiculos[v].get_objetivo() + melhor_delta - dados->custo_terceirizacao[rota[melhor_i]]);  //atualizando a funcao objetivo do veiculo
-			funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
+				veiculos[v].set_capacidade_disp(veiculos[v].get_capacidade_disp() + dados->demandas[rota[melhor_i]]);
+				veiculos[v].set_objetivo( veiculos[v].get_objetivo() + melhor_delta - dados->custo_terceirizacao[rota[melhor_i]]);  //atualizando a funcao objetivo do veiculo
+				funcao_objetivo = funcao_objetivo + melhor_delta;                       //atualizando a funcao objetivo geral
+			}
 
 			houve_melhoria_rotas = 1;
       	}
 	}
+
+	for(int i = indice_v_retirados.size() - 1; i >= 0; --i){            //retirando os veiculos com indices maiores primeiro no vetor veiculos
+		veiculos.erase(veiculos.begin() + indice_v_retirados[i]);       //retirando os veiculos
+	}
+	//getchar();
 
 	return houve_melhoria_rotas;
 }
@@ -840,18 +858,18 @@ void Heuristica::perturbacao(){
 			}
 		}
 		
-		cout << "Rota i antes  da perturbacao: ";
+		// cout << "Rota i antes  da perturbacao: ";
 
-		for(int i = 0 ; i < clientes_i.size(); i++){
-			cout << clientes_i[i] << " ";
-		}
-		cout << endl;
+		// for(int i = 0 ; i < clientes_i.size(); i++){
+		// 	cout << clientes_i[i] << " ";
+		// }
+		// cout << endl;
 		
-		cout << "Rota j antes da perturbacao: ";
-		for(int j = 0; j < clientes_j.size(); j++){
-			cout << clientes_j[j] << " ";
-		}
-		cout << endl;
+		// cout << "Rota j antes da perturbacao: ";
+		// for(int j = 0; j < clientes_j.size(); j++){
+		// 	cout << clientes_j[j] << " ";
+		// }
+		// cout << endl;
 
 		/* Precisamos agora de duas posicoes aleatorias da rota para fazer o swap
 		 * porem precisamos garantir que funcione por conta da capacidade de cada veiculo	*/
@@ -865,7 +883,7 @@ void Heuristica::perturbacao(){
 			int prox_cliente_i = veiculos[indice_primeiro_veiculo].get_prox_cliente(clientes_i[i]);
 			int prox_cliente_j = veiculos[indice_segundo_veiculo].get_prox_cliente(clientes_j[j]);
 			
-			cout << "Sera realiza o swap entre: " << prox_cliente_i << " e " << prox_cliente_j << endl;
+			//cout << "Sera realiza o swap entre: " << prox_cliente_i << " e " << prox_cliente_j << endl;
 			int prox_final_i = veiculos[indice_primeiro_veiculo].get_prox_cliente(prox_cliente_i);
 			int prox_final_j = veiculos[indice_segundo_veiculo].get_prox_cliente(prox_cliente_j);
 			/* A nova capacidade dos veiculos será determinada por
@@ -891,8 +909,8 @@ void Heuristica::perturbacao(){
 				veiculos[indice_primeiro_veiculo].set_objetivo(funcao_objetivo);
 
 
-				cout << "Capacidade nova do veiculo i: " << nova_capacidade_i << endl;
-				cout << "Capacidade nova do veiculo j: " << nova_capacidade_j << endl;
+				// cout << "Capacidade nova do veiculo i: " << nova_capacidade_i << endl;
+				// cout << "Capacidade nova do veiculo j: " << nova_capacidade_j << endl;
 
 				veiculos[indice_segundo_veiculo].set_cliente(prox_cliente_i, clientes_j[j]);
 				veiculos[indice_segundo_veiculo].set_cliente(prox_final_j, prox_cliente_i);
@@ -913,16 +931,16 @@ void Heuristica::perturbacao(){
 
 			operacao_realizada++;
 		}
-		cout << "Rota i apos perturbacao: ";
-		veiculos[indice_primeiro_veiculo].printa_caminho_total(0);
-		cout << endl;
-		cout << "Rota j apos perturbacao: ";
-		veiculos[indice_segundo_veiculo].printa_caminho_total(0);
+		// cout << "Rota i apos perturbacao: ";
+		// veiculos[indice_primeiro_veiculo].printa_caminho_total(0);
+		// cout << endl;
+		// cout << "Rota j apos perturbacao: ";
+		// veiculos[indice_segundo_veiculo].printa_caminho_total(0);
 		perturbacoes_realizadas++;
 		//getchar();
 	}
 	
-	cout << "Funcao Objetivo apos perturbaca: " << this->funcao_objetivo << endl;
+	//cout << "Funcao Objetivo apos perturbaca: " << this->funcao_objetivo << endl;
 	/*
 	for(int i = 0; i < veiculos.size(); i++){
 
