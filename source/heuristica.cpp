@@ -6,9 +6,13 @@
 #include <time.h>
 #include <cstdlib> 
 #include <math.h>
+#include <climits>
 
 using namespace std;
+
 #define QTD_VIZINHANCAS 3
+#define QTD_PERTURBACAO 3
+#define ILS_EXECUCOES 10
 
 Heuristica::Heuristica(Instancia* dados_atuais){
 	
@@ -16,6 +20,7 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 	this->entregasRealizadas = 0;
 	this->funcaoObjetivo = 0;
 	this->clientesAtendidos = 0;
+	this->melhor_solucao.funcao_objetivo = INT_MAX; // Inicializa como infinito
 
 	for(int i = 1; i < (dados->q_clientes) + 1; i++){
 		clientesDisponiveis.push_back(i);
@@ -165,7 +170,7 @@ void Heuristica::insercaoMaisBarata(){
 			int melhorCliente_a = 0;
 			int melhorCliente_b = 0;
 			int custo = 0;
-			int melhorCusto = 999999;
+			int melhorCusto = INT_MAX;
 
 			int clienteA = 0;
 			while(1){
@@ -271,6 +276,7 @@ void Heuristica::insercaoMaisBarata(){
 
 	  	cout << endl;
 		cout << "Quantia de clientes atendidos pelo veiculo: " << veiculos[i].get_quantia_clientes() << endl;
+		cout << "Capacidade atual do veiculo: " << veiculos[i].getCapacidade() << endl;
     }
 	
 	  cout << "Clientes terceirizados: ";
@@ -284,11 +290,29 @@ void Heuristica::insercaoMaisBarata(){
 	
 }
 
-void Heuristica::resolve(){
+void Heuristica::ILS(){
 
 	auto inicio = std::chrono::high_resolution_clock::now();
 	insercaoMaisBarata();	
 	VND();
+
+	cout << "Funcao objetivo apos VND: " << this->funcaoObjetivo << endl;
+	
+	/* Vamos executar o ILS 10 vezes	*/
+	for(int i = 0; i < ILS_EXECUCOES; i++) {
+		
+		if(this->funcaoObjetivo < this->melhor_solucao.funcao_objetivo){
+			this->melhor_solucao.veiculos = this->veiculos;
+			this->melhor_solucao.clientes_terceirizados = this->clientesTerceirizados;
+			this->melhor_solucao.funcao_objetivo = this->funcaoObjetivo;
+		}
+		perturbacao();
+		VND();
+		cout << "Funcao Objetivo apos VND: " << this->funcaoObjetivo << endl;
+		getchar();
+	}
+
+
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
 	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
 	cout << "Solucao: " << funcaoObjetivo << endl;
@@ -772,6 +796,159 @@ bool Heuristica::crossover(){
 		cout << "Custo total apos o crossover: " << this->funcaoObjetivo << endl;
 	
 	return houve_melhoria_rotas;
+}
+
+
+void Heuristica::perturbacao(){
+	
+	/* Vamos pegar 2 veiculos aleatorios enquanto fazemos shift entre rotas 1 a 1*/	
+	srand((unsigned)time(NULL));
+	
+	int perturbacoes_realizadas = 0;
+	while(perturbacoes_realizadas < QTD_PERTURBACAO){
+		int indice_primeiro_veiculo = rand() % veiculos.size(); // Primeiro veiculo aleatorio
+		/* Devemos garantir que o segundo indice seja diferente do primeiro	*/
+		int indice_segundo_veiculo = indice_primeiro_veiculo;
+		while(indice_segundo_veiculo == indice_primeiro_veiculo){
+			indice_segundo_veiculo = rand() % veiculos.size();
+		}
+		
+		
+		/* Vetores de cada rota referente ao seu veiculo	*/
+		vector < int > clientes_i;
+		vector < int > clientes_j;
+
+		/* Vale pagar o custo de inserir em vetores o caminho total	*/
+		int cliente_anterior_i = 0;
+		int cliente_anterior_j = 0;
+		int criou_rotas = 0;
+
+		while(criou_rotas < 2){
+			if(criou_rotas == 0){
+
+				clientes_i.push_back(cliente_anterior_i);
+				int cliente_atual_i = veiculos[indice_primeiro_veiculo].getProxCliente(cliente_anterior_i);
+					
+				if(cliente_atual_i == 0){
+					criou_rotas++;
+					continue;
+				}
+				
+				cliente_anterior_i = cliente_atual_i;
+			}
+			else{
+				clientes_j.push_back(cliente_anterior_j);
+				int cliente_atual_j = veiculos[indice_segundo_veiculo].getProxCliente(cliente_anterior_j);
+				if(cliente_atual_j == 0){
+
+					criou_rotas++;
+					continue;
+				}
+				cliente_anterior_j = cliente_atual_j;
+			}
+		}
+		
+		cout << "Rota i antes  da perturbacao: ";
+
+		for(int i = 0 ; i < clientes_i.size(); i++){
+			cout << clientes_i[i] << " ";
+		}
+		cout << endl;
+		
+		cout << "Rota j antes da perturbacao: ";
+		for(int j = 0; j < clientes_j.size(); j++){
+			cout << clientes_j[j] << " ";
+		}
+		cout << endl;
+
+		/* Precisamos agora de duas posicoes aleatorias da rota para fazer o swap
+		 * porem precisamos garantir que funcione por conta da capacidade de cada veiculo	*/
+		int operacao_realizada = 0;
+
+		while(operacao_realizada < 5){
+			
+			/* indices que terão seu proximo cliente alterado, caso o veiculo possua capacidade*/
+			int i =  rand() % clientes_i.size();
+			int j =  rand() % clientes_j.size();
+			int prox_cliente_i = veiculos[indice_primeiro_veiculo].getProxCliente(clientes_i[i]);
+			int prox_cliente_j = veiculos[indice_segundo_veiculo].getProxCliente(clientes_j[j]);
+			
+			cout << "Sera realiza o swap entre: " << prox_cliente_i << " e " << prox_cliente_j << endl;
+			int prox_final_i = veiculos[indice_primeiro_veiculo].getProxCliente(prox_cliente_i);
+			int prox_final_j = veiculos[indice_segundo_veiculo].getProxCliente(prox_cliente_j);
+			/* A nova capacidade dos veiculos será determinada por
+			 * vamos retirar a capacidade do cliente anterior e adicionar a capacidade do novo cliente
+			 * caso esse calculo seja maior ou igual a zero é porque podemos adicionar o cliente*/
+			int nova_capacidade_i = veiculos[indice_primeiro_veiculo].getCapacidade() + dados->demandas[prox_cliente_i]
+				- dados->demandas[prox_cliente_j];
+			int nova_capacidade_j = veiculos[indice_segundo_veiculo].getCapacidade()
+				+ dados->demandas[prox_cliente_j] - dados->demandas[prox_cliente_i];
+		
+			/* Vamos adicionar o prox_cliente_j em prox_cliente_i	*/
+
+			if(nova_capacidade_i >= 0 and nova_capacidade_j >= 0){
+				veiculos[indice_primeiro_veiculo].setCliente(prox_cliente_j, clientes_i[i]);
+				veiculos[indice_primeiro_veiculo].setCliente(prox_final_i, prox_cliente_j);
+				int funcao_objetivo = veiculos[indice_primeiro_veiculo].getObjetivo() - dados->matriz_distancias[clientes_i[i]][prox_cliente_i]
+					- dados->matriz_distancias[prox_cliente_i][prox_final_i] + dados->matriz_distancias[clientes_i[i]][prox_cliente_j]
+					+ dados->matriz_distancias[prox_cliente_j][prox_final_i];
+			
+
+				this->funcaoObjetivo = this->funcaoObjetivo - veiculos[indice_primeiro_veiculo].getObjetivo()
+					+ funcao_objetivo;
+				veiculos[indice_primeiro_veiculo].setObjetivo(funcao_objetivo);
+
+
+				cout << "Capacidade nova do veiculo i: " << nova_capacidade_i << endl;
+				cout << "Capacidade nova do veiculo j: " << nova_capacidade_j << endl;
+
+				veiculos[indice_segundo_veiculo].setCliente(prox_cliente_i, clientes_j[j]);
+				veiculos[indice_segundo_veiculo].setCliente(prox_final_j, prox_cliente_i);
+				funcao_objetivo = veiculos[indice_segundo_veiculo].getObjetivo() - dados->matriz_distancias[clientes_j[j]][prox_cliente_j]
+					- dados->matriz_distancias[prox_cliente_j][prox_final_j] + dados->matriz_distancias[clientes_j[j]][prox_cliente_i]
+					+ dados->matriz_distancias[prox_cliente_i][prox_final_j];
+
+				this->funcaoObjetivo = this->funcaoObjetivo - veiculos[indice_segundo_veiculo].getObjetivo()
+						+ funcao_objetivo;
+				veiculos[indice_segundo_veiculo].setObjetivo(funcao_objetivo);
+
+				veiculos[indice_primeiro_veiculo].setCapacidade(nova_capacidade_i);
+				veiculos[indice_segundo_veiculo].setCapacidade(nova_capacidade_j);
+				cout << "Nova objetivo veiculo i: " << veiculos[indice_primeiro_veiculo].getObjetivo() << endl;
+				cout << "Nova objetivo veiculo j: " << veiculos[indice_segundo_veiculo].getObjetivo() << endl;
+				break;
+			}
+
+			operacao_realizada++;
+		}
+		cout << "Rota i apos perturbacao: ";
+		veiculos[indice_primeiro_veiculo].printaCaminhoTotal(0);
+		cout << endl;
+		cout << "Rota j apos perturbacao: ";
+		veiculos[indice_segundo_veiculo].printaCaminhoTotal(0);
+		perturbacoes_realizadas++;
+		//getchar();
+	}
+	
+	cout << "Funcao Objetivo apos perturbaca: " << this->funcaoObjetivo << endl;
+	/*
+	for(int i = 0; i < veiculos.size(); i++){
+
+		cout << "Funcao Objetivo do veiculo i: " << veiculos[i].getObjetivo() << endl;
+		cout << "Caminho do veiculo i: ";
+		veiculos[i].printaCaminhoTotal(0);
+	}
+	
+	cout << endl;
+	cout << "Clientes terceirizados: ";
+	for(int j = 0; j < clientesTerceirizados.size(); j++){
+
+		cout << clientesTerceirizados[j] << " ";
+	}
+	cout << endl;
+	getchar();
+	*/
+
 }
 
 Heuristica::~Heuristica(){

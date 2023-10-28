@@ -6,17 +6,24 @@
 
 using namespace std;
 
+typedef struct{
+	vector < Veiculo > veiculos;
+	vector < int > clientes_terceirizados;
+	int funcao_objetivo;
+
+}Solucao;
 
 
 class Heuristica{
 	public:
 		Heuristica(Instancia* dados);
 		~Heuristica();
-		void resolve();
+		void ILS();
 		void insercaoMaisBarata();	
 		Veiculo solucaoInicial(int indiceSolucao);
 		void VND();
-
+		void perturbacao();
+		
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
 		bool swapEntreRotas();
@@ -28,12 +35,18 @@ class Heuristica{
 
 	private:
 		vector <Veiculo> veiculos;
+		
+
+		vector <Veiculo> best_veiculos;
+
 		vector <int> clientesTerceirizados;
 		int clientesAtendidos;
 		vector <int> clientesDisponiveis;
 		int entregasRealizadas;
 		Instancia *dados;
 		int funcaoObjetivo;
+		int best_objetivo;
+		Solucao melhor_solucao;
 };
 
 
