@@ -13,6 +13,10 @@ typedef struct{
 
 }Solucao;
 
+typedef struct{
+	int demanda;
+	int indice;
+}Cliente;
 
 class Heuristica{
 	public:
@@ -23,18 +27,21 @@ class Heuristica{
 		Veiculo solucaoInicial(int indiceSolucao);
 		void VND();
 		void perturbacao();
-		
+		void demanda_mais_barata();	
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
 		bool swapEntreRotas();
 		bool crossover();
 		bool terceirizacao();
 		bool desterceirizacao();
+		bool two_opt();
 
 		void printVector(vector<int> vetor); //deve ser eliminado
 
 	private:
 		vector <Veiculo> veiculos;
+
+		vector < Cliente > clientes_ordenados;
 		vector <int> clientes_terceirizados;
 		vector <int> clientes_disponiveis;
 		int entregas_realizadas;
