@@ -263,26 +263,26 @@ void Heuristica::insercaoMaisBarata(){
 	}
 
 
-	// for(int  i = 0; i < veiculos.size(); i++){
+	 for(int  i = 0; i < veiculos.size(); i++){
 		
-	//   	cout << "Objetivo do veiculo: " << veiculos[i].get_objetivo() << endl;
-	//   	cout << "Caminho do veiculo( " << i << "):";
-	//   	veiculos[i].printa_caminho_total(0);
+	   	cout << "Objetivo do veiculo: " << veiculos[i].get_objetivo() << endl;
+	   	cout << "Caminho do veiculo( " << i << "):";
+	   	veiculos[i].printa_caminho_total(0);
 
-	//   	cout << endl;
-	// 	cout << "Quantia de clientes atendidos pelo veiculo: " << veiculos[i].get_quantia_clientes() << endl;
-	// 	cout << "Capacidade atual do veiculo: " << veiculos[i].get_capacidade_disp() << endl;
-    // }
+	   	cout << endl;
+	 	cout << "Quantia de clientes atendidos pelo veiculo: " << veiculos[i].get_quantia_clientes() << endl;
+	 	cout << "Capacidade atual do veiculo: " << veiculos[i].get_capacidade_disp() << endl;
+     }
 	
-	//   cout << "Clientes terceirizados: ";
-	//   for(int i = 0; i < clientes_terceirizados.size(); i++){
+	   cout << "Clientes terceirizados: ";
+	for(int i = 0; i < clientes_terceirizados.size(); i++){
 
-	//   	cout << clientes_terceirizados[i] << " ";
-	//   }
-	// cout << endl;
+	   	cout << clientes_terceirizados[i] << " ";
+	   }
+	 cout << endl;
 
-	// cout << "Custo total apos o guloso: " << this->funcao_objetivo << endl;
-	
+	 cout << "Custo total apos o guloso: " << this->funcao_objetivo << endl;
+	cout << "saiu do guloso" << endl;	
 }
 
 void Heuristica::ILS(){
@@ -302,8 +302,9 @@ void Heuristica::ILS(){
 			this->melhor_solucao.funcao_objetivo = this->funcao_objetivo;
 		}
 		perturbacao();
+		cout << "here" << endl;
 		VND();
-		cout << "Funcao Objetivo apos VND: " << this->funcao_objetivo << endl;
+		cout << "Funcao Objetivo apos VND: " << this->melhor_solucao.funcao_objetivo << endl;
 		// getchar();
 	}
 
@@ -815,7 +816,10 @@ void Heuristica::perturbacao(){
 	srand((unsigned)time(NULL));
 	
 	int perturbacoes_realizadas = 0;
+	cout << "entrou na perturbacao" << endl;
 	while(perturbacoes_realizadas < QTD_PERTURBACAO){
+		if(veiculos.size() == 1)
+			break;
 		int indice_primeiro_veiculo = rand() % veiculos.size(); // Primeiro veiculo aleatorio
 		/* Devemos garantir que o segundo indice seja diferente do primeiro	*/
 		int indice_segundo_veiculo = indice_primeiro_veiculo;
@@ -893,7 +897,8 @@ void Heuristica::perturbacao(){
 				- dados->demandas[prox_cliente_j];
 			int nova_capacidade_j = veiculos[indice_segundo_veiculo].get_capacidade_disp()
 				+ dados->demandas[prox_cliente_j] - dados->demandas[prox_cliente_i];
-		
+			
+			cout << "oi" << endl;
 			/* Vamos adicionar o prox_cliente_j em prox_cliente_i	*/
 
 			if(nova_capacidade_i >= 0 and nova_capacidade_j >= 0){
