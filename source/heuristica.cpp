@@ -7,6 +7,7 @@
 #include <cstdlib> 
 #include <math.h>
 #include <climits>
+#include <fstream>
 
 using namespace std;
 
@@ -25,7 +26,6 @@ Heuristica::Heuristica(Instancia* dados_atuais){
 		clientes_disponiveis.push_back(i);
 	}
 }
-
 
 
 Veiculo Heuristica::solucaoInicial(int indice_veiculo){
@@ -112,8 +112,6 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 	return veiculo;
 	
 }
-
-
 
 void Heuristica::demanda_mais_barata(){
 
@@ -209,7 +207,7 @@ void Heuristica::demanda_mais_barata(){
 	cout << endl;
 
 	cout << "Objetivo apos o guloso: " << this->funcao_objetivo << endl;
-	getchar();
+	//getchar();
 
 }
 
@@ -240,7 +238,7 @@ void Heuristica::insercaoMaisBarata(){
 		cout << clientes_ordenados[i].demanda << " ";
 	}
 	cout << endl;
-	getchar();
+	//getchar();
 
 	for(int i = 0; i < dados->q_veiculos; i++){
 				
@@ -483,8 +481,8 @@ void Heuristica::ILS(){
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio;
 	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
 	cout << "Solucao: " << this->melhor_solucao.funcao_objetivo << endl;
-	
 	cout << "Tempo(s): " << millisecond/1000.0 << endl;
+	printa_solucao_final();
 }
 
 void Heuristica::VND(){
@@ -498,7 +496,7 @@ void Heuristica::VND(){
 				melhorou_solucao = reinsertion();
 				break;
 			case 1: 
-				melhorou_solucao = swapEntreRotas();
+				melhorou_solucao = swap_interotas();
 				break;
 			case 2:
 				melhorou_solucao = terceirizacao();
@@ -510,8 +508,7 @@ void Heuristica::VND(){
 				melhorou_solucao = desterceirizacao();
 				break;
 			case 5:
-
-				melhorou_solucao = two_opt();
+				melhorou_solucao = swap_intrarota();
 				break;
 		}
 
@@ -526,7 +523,8 @@ void Heuristica::VND(){
 
 }
 
-bool Heuristica::two_opt(){
+bool Heuristica::swap_intrarota(){
+
 	bool houve_melhoria_rotas = 0;
 		
 	for(int v = 0; v < veiculos.size(); v++){
@@ -551,13 +549,6 @@ bool Heuristica::two_opt(){
 		melhor_delta = 0;
 
 		int melhor_i, melhor_j;
-		/* Se temos a rota 0-7-(6-8)-9-0
-		 * e i =  1 e j = 3
-		 * 0-7-8-6-9-0
-		 * perceba que começamos a inversao
-		 * depois do valor de i e depois do valor de j	
-		 * logo pela logica de 0 até i não altera a objetivo
-		 * e de j+1 adiante também não e entre também nao*/
 
 		int custo_anterior, custo_posterior = 0;
 		for(int i = 1; i < rota.size() - 1; i++){
@@ -604,15 +595,11 @@ bool Heuristica::two_opt(){
 					
 				delta = custo_posterior - custo_anterior;
 
-				cout << "Delta achado: " << delta << endl;
-				//getchar();
 				if (delta < melhor_delta){
 						
 					melhor_delta = delta;
 					melhor_i = i;
 					melhor_j = j;
-					cout << "Delta achado swap(intra rota) opt: " << delta << endl;
-					getchar();
 				}
 					
 			}
@@ -660,6 +647,7 @@ bool Heuristica::two_opt(){
 	}
 	return houve_melhoria_rotas;
 }
+
 bool Heuristica::reinsertion(){
 
 	bool houve_melhoria_rotas = 0;
@@ -754,7 +742,7 @@ bool Heuristica::reinsertion(){
 	return houve_melhoria_rotas; //retorna se ouve melhoria para o VND
 }
 
-bool Heuristica::swapEntreRotas(){
+bool Heuristica::swap_interotas(){
 	
 	if(veiculos.size() == 1)
 		return 0;
@@ -934,7 +922,6 @@ bool Heuristica::terceirizacao(){
 	return houve_melhoria_rotas;
 }
 
-
 bool Heuristica::desterceirizacao(){
 
 	bool houve_melhoria_rotas = 0;
@@ -1007,7 +994,6 @@ bool Heuristica::desterceirizacao(){
 	return houve_melhoria_rotas;
 }
 	
-
 bool Heuristica::crossover(){
 	bool houve_melhoria_rotas = 0;
 	
@@ -1130,7 +1116,6 @@ bool Heuristica::crossover(){
 	
 	return houve_melhoria_rotas;
 }
-
 
 void Heuristica::perturbacao(){
 	
@@ -1287,6 +1272,68 @@ void Heuristica::perturbacao(){
 	getchar();
 	*/
 
+}
+
+void Heuristica::printa_solucao_final(){
+	
+
+	string caminho = "resultados/saida-";
+	string caminho_arq = caminho + dados->nome_instancia;
+
+	std::ofstream arquivo(caminho_arq);
+
+
+	int custo_terceiriz = 0;
+	for(int i = 0; i < melhor_solucao.clientes_terceirizados.size(); i++){
+
+		int terceirizado = melhor_solucao.clientes_terceirizados[i];
+		custo_terceiriz += dados->custo_terceirizacao[terceirizado];
+	}
+
+	int custo_veiculos = (melhor_solucao.veiculos.size() * dados->custo_veiculo);
+
+	if(arquivo.is_open()){
+		arquivo << melhor_solucao.funcao_objetivo << endl;
+		arquivo << melhor_solucao.funcao_objetivo - custo_terceiriz - custo_veiculos << endl;
+		arquivo << custo_veiculos << endl;
+		arquivo << custo_terceiriz << endl << endl;
+
+ 		for(int i = 0; i < melhor_solucao.clientes_terceirizados.size(); i++){         //printando os clientes terceirixados
+			arquivo << clientes_terceirizados[i];
+			arquivo << " ";
+		}
+		arquivo << endl << endl;
+
+		arquivo << melhor_solucao.veiculos.size();
+
+		for(int i = 0; i < veiculos.size(); i++){
+			
+			arquivo << endl;
+			std::vector<int> rota;
+			std::vector<int> *ptr_rota = veiculos[i].get_caminho_total();
+
+			int ponto_rota = 0;
+			while(1){
+
+				int cliente = (*ptr_rota)[ponto_rota];
+				
+				if (cliente == 0){
+					break;
+				}else{
+					ponto_rota = cliente;
+					arquivo << cliente;
+					arquivo << " ";
+				}
+			}
+		}
+
+
+		arquivo.close();
+	}else{
+		cout << "Erro ao criar arquivo!" << endl;
+	}
+
+	
 }
 
 Heuristica::~Heuristica(){

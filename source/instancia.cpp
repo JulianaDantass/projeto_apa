@@ -18,6 +18,8 @@ Instancia::Instancia(){
 int Instancia::lerInstancia (string caminho){
     
     // Tentando abrir o arrquivo da instancia
+
+
     ifstream arquivo_inst;
     arquivo_inst.open(caminho.c_str());
 
@@ -25,6 +27,8 @@ int Instancia::lerInstancia (string caminho){
         cout << "Não foi possivel abrir o arquivo da instancia" << endl; 
         return -1;
     }
+
+    nome_instancia = caminho.erase(0,11);
 
     // Ler os primeiros 5 atributos da instancia
     arquivo_inst >> q_clientes

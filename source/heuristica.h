@@ -30,17 +30,17 @@ class Heuristica{
 		void demanda_mais_barata();	
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
-		bool swapEntreRotas();
+		bool swap_interotas();
 		bool crossover();
 		bool terceirizacao();
 		bool desterceirizacao();
-		bool two_opt();
+		bool swap_intrarota();
 
-		void printVector(vector<int> vetor); //deve ser eliminado
+		void printa_solucao_final();
+
 
 	private:
 		vector <Veiculo> veiculos;
-
 		vector < Cliente > clientes_ordenados;
 		vector <int> clientes_terceirizados;
 		vector <int> clientes_disponiveis;

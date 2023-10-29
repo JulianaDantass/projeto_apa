@@ -10,6 +10,7 @@ using namespace std;
 
 class Instancia{
     public: 
+        string nome_instancia;
         int q_clientes,
             q_veiculos,
             capacidade,
