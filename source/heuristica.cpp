@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define QTD_VIZINHANCAS 5
+#define QTD_VIZINHANCAS 6
 #define QTD_PERTURBACAO 3
 #define ILS_EXECUCOES 50
 
@@ -47,14 +47,16 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 	 * for maior ou igual a terceirizacao, é melhor terceirizar	
 	 * Sempre tentamos criar uma rota, se a gente insere uma vez quebramos o loop*/
 		
-	while(!clientes_disponiveis.empty()){	
+	while(!clientes_ordenados.empty()){	
 		if(inseriu == 1)
 			break;
 
-		srand((unsigned)time(NULL));
-		int n = rand() % clientes_disponiveis.size(); // Gera um indice aleatorio
-		int cliente_indice = clientes_disponiveis[n]; // Retira um cliente aleatorio
-				
+		//srand((unsigned)time(NULL));
+		//int n = rand() % clientes_disponiveis.size(); // Gera um indice aleatorio
+		//int cliente_indice = clientes_disponiveis[n]; // Retira um cliente aleatorio
+
+		Cliente cliente = clientes_ordenados.back();
+		int cliente_indice = cliente.indice;		
 		/* Verifica se o veiculo tem capacidade para suprir a demanda	*/
 		
 		
@@ -65,8 +67,9 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 			if(custo_terceirizacao_cliente <= custoIda){
 				clientes_terceirizados.push_back(cliente_indice);
 				this->funcao_objetivo += custo_terceirizacao_cliente;
-				swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
-				clientes_disponiveis.pop_back();
+				//swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
+				//clientes_disponiveis.pop_back();
+				clientes_ordenados.pop_back();
 				continue;
 
 			}
@@ -84,8 +87,9 @@ Veiculo Heuristica::solucaoInicial(int indice_veiculo){
 			veiculo.set_capacidade_disp(novaCapacidade);  // Seta nova capacidade
 			entregas_realizadas++; // Armaneza quantas entregas ja foi realizada
 			/*Excluir o cliente gerado */
-			swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
-			clientes_disponiveis.pop_back();
+			//swap(clientes_disponiveis[n], clientes_disponiveis[clientes_disponiveis.size() - 1]);
+			//clientes_disponiveis.pop_back();
+			clientes_ordenados.pop_back();
 			/* Fim da eliminacao do cliente */
 			inseriu++;
 			cliente_anterior = cliente_indice;
@@ -215,14 +219,36 @@ void Heuristica::demanda_mais_barata(){
  * e calculamos a insercao mais barata*/
 
 void Heuristica::insercaoMaisBarata(){
+	/* Ordena em ordem decrescente	*/
+	int n = dados->demandas.size();
+
+	for(int i = 1; i < n; i++){
+		Cliente cliente;
+		cliente.indice = i;
+		cliente.demanda = this->dados->demandas[i];
+		clientes_ordenados.push_back(cliente);
+	}
+
+	sort(clientes_ordenados.begin(), clientes_ordenados.end(), [](const Cliente& a, const Cliente& b){
+			return 	a.demanda >= b.demanda;
+			});
+
+	cout << "Demandas Ordenadas: ";
 	
+	for(int i = 0; i < clientes_ordenados.size(); i++){
+
+		cout << clientes_ordenados[i].demanda << " ";
+	}
+	cout << endl;
+	getchar();
+
 	for(int i = 0; i < dados->q_veiculos; i++){
 				
 		/* Verificando se ainda existe cliente para suprir	*/
 		//if(clientes_disponiveis.size() == 0)
 		//	break;
 		
-		if(clientes_ordenados.size() == 0)
+		if(clientes_ordenados.size() == 0 or entregas_realizadas == dados->minimo_entregas)
 			break;
 
 		cout << "Solucao inicial para o veiculo: " << i << endl;
@@ -243,7 +269,7 @@ void Heuristica::insercaoMaisBarata(){
  
 	  
 		veiculos[i].printa_caminho_total(0);
-		
+		getchar();
 		/* O loop começa do ultimo cliente no vetor
 		 * Se houver capacidade para aquele cliente
 		 * calculamos o menor custo da insercao mais barata
@@ -252,19 +278,25 @@ void Heuristica::insercaoMaisBarata(){
 		 * é maior ou igual ao custo da terceirizacao, porque se for
 		 * é melhor terceirizar	*/
 
-		for(int v = clientes_disponiveis.size() - 1; v >= 0; v--){
+		for(int v = clientes_ordenados.size() - 1; v >= 0; v--){
 			
 			/* Se o veiculo não tiver capacidade, paramos o codigo	*/
 			if( veiculos[i].get_capacidade_disp() <= 0)
 				break;
 
-			int cliente = clientes_disponiveis[v];
+			if(entregas_realizadas >= dados->minimo_entregas)
+				break;
+
+			Cliente cliente_data = clientes_ordenados[v];
+			int cliente = cliente_data.indice;
 			
+			/*
 			for(int i = 0; i < clientes_disponiveis.size(); i++){
 
 				cout << clientes_disponiveis[i] << " ";
 			}
-			
+			*/
+
 			/* Se a demanda do cliente for maior do que a capacidade, então pulamos para o proximo cliente	*/
 			int demanda_cliente = dados->demandas[cliente];
 			//cout << "Demanda do cliente " << cliente << " " << demanda_cliente << endl;
@@ -322,8 +354,9 @@ void Heuristica::insercaoMaisBarata(){
 
 				cout << "O cliente tem custo de terceirizacao melhor, pois vale: " << custo_terceirizacao_cliente << endl;
 				
-				swap(clientes_disponiveis[v], clientes_disponiveis[clientes_disponiveis.size() - 1]);
-				clientes_disponiveis.pop_back();
+				//swap(clientes_disponiveis[v], clientes_disponiveis[clientes_disponiveis.size() - 1]);
+				//clientes_disponiveis.pop_back();
+				clientes_ordenados.pop_back();
 				this->funcao_objetivo += custo_terceirizacao_cliente;
 				clientes_terceirizados.push_back(cliente);
 				continue;
@@ -346,8 +379,9 @@ void Heuristica::insercaoMaisBarata(){
 				//cout << "Capacidade do veiculo apos insercao: " <<  veiculos[i].get_capacidade_disp() << endl;
 
 				/* Troca a posicao com o ultimo e da o pop_back	*/
-				swap(clientes_disponiveis[v], clientes_disponiveis[clientes_disponiveis.size() - 1]);
-				clientes_disponiveis.pop_back();
+				//swap(clientes_disponiveis[v], clientes_disponiveis[clientes_disponiveis.size() - 1]);
+				//clientes_disponiveis.pop_back();
+				clientes_ordenados.pop_back();
 
 				entregas_realizadas++;
 				cout << "Novo caminho: ";
@@ -369,9 +403,16 @@ void Heuristica::insercaoMaisBarata(){
 	cout << "Foram realizadas a quantia de entregas: " << entregas_realizadas << endl;
 	cout << "Sobraram os clientes: " << clientes_disponiveis.size() << endl;
 	
-	/* Caso sobre algum cliente, devemos terceirizar pois todos os veiculos estão preenchidos	*/
+	/* Caso sobre algum cliente, devemos terceirizar pois todos os veiculos estão preenchidos	
 	for(int  i = 0; i < clientes_disponiveis.size(); i++){
 		int indice_cliente = clientes_disponiveis[i];
+		clientes_terceirizados.push_back(indice_cliente);
+		this->funcao_objetivo += dados->custo_terceirizacao[indice_cliente];
+	}
+	*/
+	for(int  i = 0; i < clientes_ordenados.size(); i++){
+		Cliente cliente_data = clientes_ordenados[i];
+		int indice_cliente= cliente_data.indice;
 		clientes_terceirizados.push_back(indice_cliente);
 		this->funcao_objetivo += dados->custo_terceirizacao[indice_cliente];
 	}
@@ -403,8 +444,8 @@ void Heuristica::insercaoMaisBarata(){
 void Heuristica::ILS(){
 
 	auto inicio = std::chrono::high_resolution_clock::now();
-	//insercaoMaisBarata();	
-	demanda_mais_barata();
+	insercaoMaisBarata();	
+	//demanda_mais_barata();
 	VND();
 
 	cout << "Funcao objetivo apos VND: " << this->funcao_objetivo << endl;
@@ -468,10 +509,10 @@ void Heuristica::VND(){
 			case 4:
 				melhorou_solucao = desterceirizacao();
 				break;
-			//case 5:
+			case 5:
 
-				//melhorou_solucao = two_opt();
-			//	break;
+				melhorou_solucao = two_opt();
+				break;
 		}
 
 		if(melhorou_solucao){            //se a vizinhanca melhorar a solucao
