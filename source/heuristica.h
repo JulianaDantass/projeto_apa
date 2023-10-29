@@ -27,7 +27,7 @@ class Heuristica{
 		Veiculo solucaoInicial(int indiceSolucao);
 		void VND();
 		void perturbacao();
-		void demanda_mais_barata();	
+	
 		//metodos para as estruturas de vizinhanca
 		bool reinsertion();
 		bool swap_interotas();
