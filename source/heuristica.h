@@ -41,10 +41,9 @@ class Heuristica{
 
 	private:
 		vector <Veiculo> veiculos;
-		vector < Cliente > clientes_ordenados;
-		vector <int> clientes_terceirizados;
-		vector <int> clientes_disponiveis;
-		int entregas_realizadas;
+		vector < Cliente > clientes_ordenados; /* Clientes ordenados em ordem decrescente em relação a demanda */
+		vector <int> clientes_terceirizados; /* Vetor que armazena os clientes que serão terceirizados */
+		int entregas_realizadas; /* Variavel que indica a quantia de entregas realizadas por veiculos */
 		Instancia *dados;
 		int funcao_objetivo;
 		Solucao melhor_solucao;
