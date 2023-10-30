@@ -240,66 +240,52 @@ void Heuristica::insercaoMaisBarata(){
 
 void Heuristica::ILS(){
 	
-	cout << "Inicio guloso" << endl;
+	// cout << "Inicio guloso" << endl;
 	auto inicio_guloso = std::chrono::high_resolution_clock::now();
 	insercaoMaisBarata();	
 	auto fim_guloso = std::chrono::high_resolution_clock::now() - inicio_guloso;
-	long long millisecond_g = std::chrono::duration_cast<std::chrono::milliseconds>(fim_guloso).count();
+	long long microsecond_g = std::chrono::duration_cast<std::chrono::microseconds>(fim_guloso).count();
 	cout << "FO apos guloso: " << this->funcao_objetivo << endl;
-	cout << "Tempo(s): " << millisecond_g / 1000 << endl;
-	cout << "Fim Guloso"  << endl;
+	cout << "Tempo(us): " << microsecond_g << endl;
+	// cout << "Fim Guloso"  << endl;
 	
 
-	cout <<  "Inicio primeiro VND " << endl;
+	// cout <<  "Inicio primeiro VND " << endl;
 	auto inicio_primeiro_vnd = std::chrono::high_resolution_clock::now();
 	VND();
 	auto fim_primeiro_vnd= std::chrono::high_resolution_clock::now() - inicio_primeiro_vnd;
-	long long millisecond_vnd = std::chrono::duration_cast<std::chrono::milliseconds>(fim_primeiro_vnd).count();
+	long long microsecond_vnd = std::chrono::duration_cast<std::chrono::microseconds>(fim_primeiro_vnd).count();
 
 	cout << "FO apos primeiro VND: " << this->funcao_objetivo << endl;
-	cout << "Tempo(s): " << millisecond_vnd / 1000 << endl;
-	cout << "Fim primeiro VND " << endl;
+	cout << "Tempo(us): " << microsecond_vnd << endl;
+	// cout << "Fim primeiro VND " << endl;
 
 
 	/* Vamos executar o ILS 10 vezes	*/
-	cout << "Inicio execuções ILS" << endl;
+	// cout << "Inicio execuções ILS" << endl;
+
+	this->melhor_solucao.veiculos = this->veiculos;
+	this->melhor_solucao.clientes_terceirizados = this->clientes_terceirizados;
+	this->melhor_solucao.funcao_objetivo = this->funcao_objetivo;
+
 	auto inicio_ils = std::chrono::high_resolution_clock::now();
 	for(int i = 0; i < ILS_EXECUCOES; i++) {
-		
-		cout << "Inicio Perturbacao "  << endl;
-		auto inicio_perturbacao = std::chrono::high_resolution_clock::now();
-		perturbacao();
-		auto fim_perturbacao= std::chrono::high_resolution_clock::now() - inicio_perturbacao;
-		long long millisecond_perturbacao = std::chrono::duration_cast<std::chrono::milliseconds>(fim_perturbacao).count();
-		cout << "FO apos primeiro perturbacao: " << this->funcao_objetivo << endl;
-		cout << "Tempo(s): " << millisecond_perturbacao / 1000 << endl;
-		cout << "Fim Perturbacao "  << endl;
 
-		cout << "Inicio VND" <<  endl;
-		auto inicio_segundo_vnd = std::chrono::high_resolution_clock::now();
+		perturbacao();
 		VND();
-		auto fim_segundo_vnd= std::chrono::high_resolution_clock::now() - inicio_segundo_vnd;
-		long long millisecond_segundo_vnd = std::chrono::duration_cast<std::chrono::milliseconds>(fim_segundo_vnd).count();
-		cout << "FO apos VND: " << this->funcao_objetivo << endl;
-		cout << "Tempo(s): " << millisecond_segundo_vnd / 1000 << endl;
-		cout << "Fim VND "  << endl;
 
 		if(this->funcao_objetivo < this->melhor_solucao.funcao_objetivo){
 			this->melhor_solucao.veiculos = this->veiculos;
 			this->melhor_solucao.clientes_terceirizados = this->clientes_terceirizados;
 			this->melhor_solucao.funcao_objetivo = this->funcao_objetivo;
-			cout << "Atualizou a melhor solucao" << endl;
 		}
-		
-	
 	}
-
 	
 	auto resultado = std::chrono::high_resolution_clock::now() - inicio_ils;
-	long long millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(resultado).count();
+	long long microsecond = std::chrono::duration_cast<std::chrono::microseconds>(resultado).count();
 	cout << "Solucao: " << this->melhor_solucao.funcao_objetivo << endl;
-	cout << "Tempo(s): " << millisecond/1000.0 << endl;
-	cout<< "Fim execuções ILS" << endl;
+	cout << "Tempo(us): " << microsecond << endl;
+	// cout<< "Fim execuções ILS" << endl;
 	printa_solucao_final();
 }
 
@@ -401,9 +387,6 @@ bool Heuristica::reinsertion(){
 		}
 	
 		if (melhor_delta < 0){
-
-			 cout << "mellhor i: " << melhor_i << " " << "melhor j: " << melhor_j << endl;
-			 cout << "melhor delta: " << melhor_delta << endl;
 
 			if(melhor_i > melhor_j){
 
@@ -519,10 +502,6 @@ bool Heuristica::swap_interotas(){
 		}
 	}
 
-
-	if(houve_melhoria_rotas)
-		cout << "Custo total apos o swap entre rotas: " << this->funcao_objetivo << endl;
-
 	return houve_melhoria_rotas;
 }
 
@@ -557,8 +536,6 @@ bool Heuristica::terceirizacao(){
 		double delta, 
 		melhor_delta = 0;         //vai guardar a diferenca de valor em relacao a solucao original        
 		int melhor_i;       	  //vao guardar os indices do melhor cliente a ser terceirizado em cada rota
-
-		veiculos[v].printa_caminho_total(0);
 
 		for(int i = 1; i < rota.size()-1; i++){
 
